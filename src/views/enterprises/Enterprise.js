@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { CCard, CCardBody, CCol } from '@coreui/react';
+import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
 import { useHistory } from 'react-router-dom';
 import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
+import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
+import { itemsPerPage } from '../../constant/Constants';
 
 const Enterprise = ({ match }) => {
     const history = useHistory();
@@ -18,6 +20,7 @@ const Enterprise = ({ match }) => {
     const [tag, setTag] = useState('');
     const [description, setDescription] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [programs, setPrograms] = useState([]);
 
     // 사용자 상세 조회 API 요청
     useEffect(() => {
@@ -143,6 +146,59 @@ const Enterprise = ({ match }) => {
         // }
     }
 
+    //프로그램 리스트 조회 API 요청
+    useEffect(() => {
+        const getPrograms = async () => {
+            try {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_PROGRAMS,
+                    path: { enterpriseId: enterpriseId },
+                });
+
+                if (!res?.isSuccess || isEmpty(res?.result)) {
+                    if (res?.code === 2002) {
+                        history.push('/enterprises');
+                    } else {
+                        alert(res.message);
+                    }
+                    return;
+                }
+
+                setPrograms(res.result);
+            } catch (error) {
+                console.log(error);
+                alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+            }
+        };
+
+        getPrograms().then();
+    }, []);
+
+    // 테이블 속성 - fields
+    const tableFields = [
+        {
+            key: 'programId',
+            _classes: 'font-weight-bold',
+            label: '고유번호',
+            _style: { width: '120px' },
+            filter: false,
+            sorter: true,
+        },
+        {
+            key: 'name',
+            label: '프로그램 이름',
+            filter: true,
+            sorter: true,
+        },
+        tableStatusField,
+    ];
+
+    // 테이블 셀 onClick
+    function onTableRowClick(item) {
+        history.push(`/programs/${item.programId}`);
+    }
+
     // 삭제 버튼 onClick
     function onDeleteButtonClick() {
         if (window.confirm('정말로 삭제하시겠습니까?')) {
@@ -205,6 +261,20 @@ const Enterprise = ({ match }) => {
                             onChange={isEditing ? (e) => setDescription(e.target.value) : null}
                         />
                     </div>
+                </CCardBody>
+                <CCardBody align="center">
+                    <CDataTable
+                        items={programs}
+                        fields={tableFields}
+                        scopedSlots={tableScopedSlots}
+                        hover
+                        striped
+                        sorter
+                        onRowClick={onTableRowClick}
+                        columnFilter
+                        pagination={tablePagination}
+                        itemsPerPage={itemsPerPage}
+                    />
                 </CCardBody>
             </CCard>
             <BottomButtons
