@@ -6,8 +6,9 @@ const User = React.lazy(() => import('./views/users/User'));
 const Boards = React.lazy(() => import('./views/boards/Boards'));
 const Board = React.lazy(() => import('./views/boards/Board'));
 const AddBoard = React.lazy(() => import('./views/boards/AddBoard'));
-
 const AddAdmin = React.lazy(() => import('./views/admin/AddAdmin'));
+
+const Enterprises = React.lazy(() => import('./views/enterprises/Enterprises'));
 
 const routes = [
     { path: '/users', exact: true, name: '회원 목록 조회', component: Users },
@@ -18,6 +19,8 @@ const routes = [
     { path: '/add-board', exact: true, name: '게시물 추가', component: AddBoard },
 
     { path: '/add-admin', exact: true, name: '관리자 추가', component: AddAdmin },
+
+    { path: '/enterprises', exact: true, name: '업체 조회', component: Enterprises },
 ];
 
 export default routes;

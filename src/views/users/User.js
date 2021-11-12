@@ -10,12 +10,12 @@ const User = ({ match }) => {
     const history = useHistory();
     const [userId] = useState(match.params.userId);
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [showGender, setShowGender] = useState(null);
+    const [birthday, setBirthday] = useState('');
 
     // 사용자 상세 조회 API 요청
     useEffect(() => {
@@ -39,6 +39,12 @@ const User = ({ match }) => {
                 setNickname(user.nickname);
                 setPhoneNumber(user.phoneNumber);
                 setName(user.name);
+                if (user.gender == 1) {
+                    setShowGender('남자');
+                } else {
+                    setShowGender('여자');
+                }
+                setBirthday(user.birthday);
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -115,18 +121,6 @@ const User = ({ match }) => {
             alert('이메일 형식을 확인해주세요.');
             return;
         }
-        // if (isEmpty(password)) {
-        //     alert('비밀번호를 입력해주세요.');
-        //     return;
-        // }
-        // if (isEmpty(confirmPassword)) {
-        //     alert('비밀번호 확인을 입력해주세요.');
-        //     return;
-        // }
-        // if (password !== confirmPassword) {
-        //     alert('비밀번호가 일치하지 않습니다.');
-        //     return;
-        // }
         if (isEmpty(nickname.trim())) {
             alert('닉네임을 입력해주세요.');
             return;
@@ -139,8 +133,6 @@ const User = ({ match }) => {
         if (window.confirm('수정하시겠습니까?')) {
             const parameters = {
                 email: email.trim(),
-                // password: password,
-                // confirmPassword: confirmPassword,
                 nickname: nickname.trim(),
                 phoneNumber: phoneNumber.trim(),
             };
@@ -167,20 +159,6 @@ const User = ({ match }) => {
                             value={email}
                             onChange={isEditing ? (e) => setEmail(e.target.value) : null}
                         />
-                        {/* <TextCell
-                            type="password"
-                            label="비밀번호"
-                            placeholder="변경할 비밀번호를 입력해주세요"
-                            value={password}
-                            onChange={isEditing ? (e) => setPassword(e.target.value) : null}
-                        />
-                        <TextCell
-                            type="password"
-                            label="비밀번호 확인"
-                            placeholder="변경할 비밀번호 한번 더 입력해주세요"
-                            value={confirmPassword}
-                            onChange={isEditing ? (e) => setConfirmPassword(e.target.value) : null}
-                        /> */}
                         <TextCell label="이름" value={name} />
                         <TextCell
                             label="닉네임"
@@ -194,7 +172,7 @@ const User = ({ match }) => {
                             value={phoneNumber}
                             onChange={isEditing ? (e) => setPhoneNumber(e.target.value) : null}
                         />
-                        <TextCell label="성별" value={gender} />
+                        <TextCell label="성별" value={showGender} />
                         <TextCell label="생년월일" value={birthday} />
                     </div>
                 </CCardBody>

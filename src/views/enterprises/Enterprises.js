@@ -5,31 +5,20 @@ import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { itemsPerPage } from '../../constant/Constants';
 import { isEmpty } from '../../utils/common/commonFunction';
-import {
-    tableFilter,
-    tablePagination,
-    tableScopedSlots,
-    tableStatusField,
-} from '../component/Table';
+import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import BottomButtons from '../component/Button';
-import boardsData from './BoardsData';
 
-// Import antd
-import { Calendar } from 'antd';
-import 'antd/dist/antd.css';
-
-const Boards = () => {
+const Enterprises = () => {
     const history = useHistory();
+    const [enterprises, setEnterprises] = useState([]);
 
-    const [boards, setBoards] = useState([]);
-
-    // 게시물 전체 조회 API 요청
+    // 사용자 전체 조회 API 요청
     useEffect(() => {
-        const getBoards = async () => {
+        const getEnterprises = async () => {
             try {
                 const { data: res } = await TempAdminApi.request({
                     method: HttpMethod.GET,
-                    url: EndPoint.GET_BOARDS,
+                    url: EndPoint.GET_ENTERPRISES,
                 });
 
                 if (!res?.isSuccess || isEmpty(res?.result)) {
@@ -41,21 +30,20 @@ const Boards = () => {
                     return;
                 }
 
-                setBoards(res.result);
+                setEnterprises(res.result);
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
-                setBoards(boardsData);
             }
         };
 
-        getBoards().then();
+        getEnterprises().then();
     }, []);
 
     // 테이블 속성 - fields
     const tableFields = [
         {
-            key: 'boardIdx',
+            key: 'enterpriseId',
             _classes: 'font-weight-bold',
             label: '고유번호',
             _style: { width: '120px' },
@@ -63,8 +51,20 @@ const Boards = () => {
             sorter: true,
         },
         {
-            key: 'title',
-            label: '제목',
+            key: 'korName',
+            label: '한글 이름',
+            filter: true,
+            sorter: true,
+        },
+        {
+            key: 'engName',
+            label: '영어 이름',
+            filter: true,
+            sorter: true,
+        },
+        {
+            key: 'primeLocation',
+            label: '대표 위치',
             filter: true,
             sorter: true,
         },
@@ -73,16 +73,7 @@ const Boards = () => {
 
     // 테이블 셀 onClick
     function onTableRowClick(item) {
-        history.push(`/boards/${item.boardIdx}`);
-    }
-
-    // 추가 버튼 onClick
-    function onPostButtonClick() {
-        history.push('/add-board');
-    }
-
-    function onPanelChange(value, mode) {
-        console.log(value.format('YYYY-MM-DD'), mode);
+        history.push(`/enterprises/${item.enterpriseId}`);
     }
 
     return (
@@ -90,22 +81,21 @@ const Boards = () => {
             <CCard>
                 <CCardBody align="center">
                     <CDataTable
-                        items={boards}
+                        items={enterprises}
                         fields={tableFields}
                         scopedSlots={tableScopedSlots}
                         hover
                         striped
                         sorter
                         onRowClick={onTableRowClick}
-                        tableFilter={tableFilter('검색 :  ', '제목을 입력하세요')}
+                        columnFilter
                         pagination={tablePagination}
                         itemsPerPage={itemsPerPage}
                     />
                 </CCardBody>
             </CCard>
-            <BottomButtons onPostClick={onPostButtonClick} />
         </CCol>
     );
 };
 
-export default Boards;
+export default Enterprises;
