@@ -15,6 +15,7 @@ export const EndPoint = {
     POST_ADMIN: `${API}`,
 
     GET_ENTERPRISES: `${API}/enterprises`,
+    GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
 };
 
 const TempAdminApiMap = {
@@ -22,6 +23,7 @@ const TempAdminApiMap = {
         [EndPoint.GET_USERS]: {},
         [EndPoint.GET_USER]: {},
         [EndPoint.GET_ENTERPRISES]: {},
+        [EndPoint.GET_ENTERPRISE]: {},
         [EndPoint.GET_AUTO_LOGIN]: {},
     },
     post: {
