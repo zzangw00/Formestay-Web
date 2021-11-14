@@ -64,8 +64,7 @@ const User = ({ match }) => {
                 path: { userId: userId },
                 data: parameters,
             });
-
-            if (!res?.isSuccess || isEmpty(res?.result)) {
+            if (!res?.isSuccess) {
                 alert(res.message);
                 return;
             }
@@ -113,28 +112,26 @@ const User = ({ match }) => {
             return;
         }
 
-        if (isEmpty(email.trim())) {
-            alert('이메일을 입력해주세요.');
-            return;
-        }
-        if (!isValidEmail(email.trim())) {
-            alert('이메일 형식을 확인해주세요.');
-            return;
-        }
+        // if (isEmpty(email.trim())) {
+        //     alert('이메일을 입력해주세요.');
+        //     return;
+        // }
+        // if (!isValidEmail(email.trim())) {
+        //     alert('이메일 형식을 확인해주세요.');
+        //     return;
+        // }
         if (isEmpty(nickname.trim())) {
             alert('닉네임을 입력해주세요.');
             return;
         }
-        if (!isEmpty(phoneNumber.trim()) && !isValidPhoneNumber(phoneNumber.trim())) {
-            alert('전화번호 형식을 확인해주세요.');
-            return;
-        }
+        // if (!isEmpty(phoneNumber.trim()) && !isValidPhoneNumber(phoneNumber.trim())) {
+        //     alert('전화번호 형식을 확인해주세요.');
+        //     return;
+        // }
 
         if (window.confirm('수정하시겠습니까?')) {
             const parameters = {
-                email: email.trim(),
                 nickname: nickname.trim(),
-                phoneNumber: phoneNumber.trim(),
             };
             patchUser(parameters).then();
         }
@@ -155,9 +152,9 @@ const User = ({ match }) => {
                         <TextCell label="유저 고유번호" value={userId} />
                         <TextCell
                             label="이메일"
-                            placeholder="이메일 주소를 입력해주세요"
+                            // placeholder="이메일 주소를 입력해주세요"
                             value={email}
-                            onChange={isEditing ? (e) => setEmail(e.target.value) : null}
+                            // onChange={isEditing ? (e) => setEmail(e.target.value) : null}
                         />
                         <TextCell label="이름" value={name} />
                         <TextCell
@@ -168,9 +165,9 @@ const User = ({ match }) => {
                         />
                         <TextCell
                             label="전화번호"
-                            placeholder="전화번호를 입력해주세요"
+                            // placeholder="전화번호를 입력해주세요"
                             value={phoneNumber}
-                            onChange={isEditing ? (e) => setPhoneNumber(e.target.value) : null}
+                            // onChange={isEditing ? (e) => setPhoneNumber(e.target.value) : null}
                         />
                         <TextCell label="성별" value={showGender} />
                         <TextCell label="생년월일" value={birthday} />

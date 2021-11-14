@@ -23,7 +23,7 @@ const AddAdmin = () => {
                 data: parameters,
             });
 
-            if (!res?.isSuccess || isEmpty(res?.result)) {
+            if (!res?.isSuccess) {
                 alert(res.message);
                 return;
             }

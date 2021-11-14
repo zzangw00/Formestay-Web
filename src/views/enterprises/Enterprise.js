@@ -260,21 +260,21 @@ const Enterprise = ({ match }) => {
                             value={description}
                             onChange={isEditing ? (e) => setDescription(e.target.value) : null}
                         />
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                            <CDataTable
+                                items={programs}
+                                fields={tableFields}
+                                scopedSlots={tableScopedSlots}
+                                hover
+                                striped
+                                sorter
+                                onRowClick={onTableRowClick}
+                                columnFilter
+                                pagination={tablePagination}
+                                itemsPerPage={itemsPerPage}
+                            />
+                        </div>
                     </div>
-                </CCardBody>
-                <CCardBody align="center">
-                    <CDataTable
-                        items={programs}
-                        fields={tableFields}
-                        scopedSlots={tableScopedSlots}
-                        hover
-                        striped
-                        sorter
-                        onRowClick={onTableRowClick}
-                        columnFilter
-                        pagination={tablePagination}
-                        itemsPerPage={itemsPerPage}
-                    />
                 </CCardBody>
             </CCard>
             <BottomButtons

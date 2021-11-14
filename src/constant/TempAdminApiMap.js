@@ -7,7 +7,7 @@ export const EndPoint = {
     GET_USERS: `${API}/users`,
     GET_USER: `${API}/users/:userId`,
     POST_USER: `${API}/users`,
-    PATCH_USER: `${API}/users/:userIdx`,
+    PATCH_USER: `${API}/users/:userId`,
     PATCH_USER_STATUS: `${API}/users/:userId/status`,
 
     GET_AUTO_LOGIN: `${API}/auto-login`,
