@@ -6,12 +6,18 @@ import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi'
 import { itemsPerPage } from '../../constant/Constants';
 import usersData from './UsersData';
 import { isEmpty } from '../../utils/common/commonFunction';
-import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
+import {
+    tablePagination,
+    tableScopedSlots,
+    tableStatusField,
+    tableSnsIdField,
+} from '../component/Table';
 import BottomButtons from '../component/Button';
 
 const Users = () => {
     const history = useHistory();
     const [users, setUsers] = useState([]);
+    const [snsId, setSnsId] = useState(null);
 
     // 사용자 전체 조회 API 요청
     useEffect(() => {
@@ -30,7 +36,13 @@ const Users = () => {
                     }
                     return;
                 }
-
+                const user1 = res.result;
+                const user = user1[0];
+                if (user.snsId == 0) {
+                    setSnsId('일반');
+                } else {
+                    setSnsId('카카오');
+                }
                 setUsers(res.result);
             } catch (error) {
                 console.log(error);
@@ -64,6 +76,7 @@ const Users = () => {
             filter: true,
             sorter: true,
         },
+        tableSnsIdField,
         {
             key: 'createdAt',
             label: '가입 날짜',
