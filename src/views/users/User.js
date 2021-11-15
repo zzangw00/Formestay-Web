@@ -16,7 +16,10 @@ const User = ({ match }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [showGender, setShowGender] = useState(null);
     const [birthday, setBirthday] = useState('');
-
+    const [snsId, setSnsId] = useState(null);
+    const [profileImgURL, setProfileImgURL] = useState('');
+    const [createdAt, setCreatedAt] = useState('');
+    const nullImage = <i class="cis-file-image"></i>;
     // 사용자 상세 조회 API 요청
     useEffect(() => {
         const getUser = async () => {
@@ -45,6 +48,17 @@ const User = ({ match }) => {
                     setShowGender('여자');
                 }
                 setBirthday(user.birthday);
+                if (user.snsId == 0) {
+                    setSnsId('일반');
+                } else {
+                    setSnsId('카카오');
+                }
+                setCreatedAt(user.createdAt);
+                // if (!user.profileImgURL) {
+                //     setProfileImgURL(nullImage);
+                // } else {
+                //     setProfileImgURL(user.profileImgURL);
+                // }
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -148,6 +162,11 @@ const User = ({ match }) => {
         <CCol>
             <CCard>
                 <CCardBody>
+                    <p>
+                        <div class="text-center">
+                            <img src={profileImgURL} alt="" class="img-thumbnail"></img>
+                        </div>
+                    </p>
                     <div className="form-group">
                         <TextCell label="유저 고유번호" value={userId} />
                         <TextCell
@@ -171,6 +190,8 @@ const User = ({ match }) => {
                         />
                         <TextCell label="성별" value={showGender} />
                         <TextCell label="생년월일" value={birthday} />
+                        <TextCell label="로그인 유형" value={snsId} />
+                        <TextCell label="가입 날짜" value={createdAt} />
                     </div>
                 </CCardBody>
             </CCard>
