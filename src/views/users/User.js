@@ -82,7 +82,6 @@ const User = ({ match }) => {
                 alert(res.message);
                 return;
             }
-
             alert('사용자 수정에 성공하였습니다.');
             history.go(0);
         } catch (error) {
@@ -100,7 +99,6 @@ const User = ({ match }) => {
                 path: { userId: userId },
                 data: { status: 'INACTIVE' },
             });
-
             if (!res.isSuccess) {
                 alert(res.message);
                 return;

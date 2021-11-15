@@ -84,12 +84,10 @@ const Enterprise = ({ match }) => {
                 path: { enterpriseId: enterpriseId },
                 data: parameters,
             });
-
-            if (!res?.isSuccess || isEmpty(res?.result)) {
+            if (!res?.isSuccess) {
                 alert(res.message);
                 return;
             }
-
             alert('업체 수정에 성공하였습니다.');
             history.go(0);
         } catch (error) {
