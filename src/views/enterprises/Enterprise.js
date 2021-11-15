@@ -21,6 +21,8 @@ const Enterprise = ({ match }) => {
     const [description, setDescription] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [programs, setPrograms] = useState([]);
+    const [thumbnailURL, setThumbnailURL] = useState('');
+    const [createdAt, setCreatedAt] = useState('');
 
     // 사용자 상세 조회 API 요청
     useEffect(() => {
@@ -48,11 +50,21 @@ const Enterprise = ({ match }) => {
                 setLocation(enterprise.location);
                 setTag(enterprise.tag);
                 setDescription(enterprise.description);
-                // if (enterprise.category == 1) {
-                //     setShowGender('남자');
-                // } else {
-                //     setShowGender('여자');
-                // }
+                setCreatedAt(enterprise.createdAt);
+                if (!enterprise.thumbnailURL) {
+                    setThumbnailURL('');
+                } else {
+                    setThumbnailURL(enterprise.thumbnailURL);
+                }
+                if (enterprise.category == 1) {
+                    setCategory('단식원');
+                } else if (enterprise.category == 2) {
+                    setCategory('템플스테이');
+                } else if (enterprise.category == 3) {
+                    setCategory('힐링캠프');
+                } else {
+                    setCategory('산후조리원');
+                }
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -63,13 +75,13 @@ const Enterprise = ({ match }) => {
         getEnterprise().then();
     }, []);
 
-    // 사용자 수정 API 요청
-    async function patchUser(parameters) {
+    // 업체 수정 API 요청
+    async function patchEnterprise(parameters) {
         try {
             const { data: res } = await TempAdminApi.request({
                 method: HttpMethod.PATCH,
-                url: EndPoint.PATCH_USER,
-                path: { userId: enterpriseId },
+                url: EndPoint.PATCH_ENTERPRISE,
+                path: { enterpriseId: enterpriseId },
                 data: parameters,
             });
 
@@ -78,7 +90,7 @@ const Enterprise = ({ match }) => {
                 return;
             }
 
-            alert('사용자 수정에 성공하였습니다.');
+            alert('업체 수정에 성공하였습니다.');
             history.go(0);
         } catch (error) {
             console.log(error);
@@ -87,12 +99,12 @@ const Enterprise = ({ match }) => {
     }
 
     // 회원 탈퇴 API 요청
-    async function patchUserStatus(userId) {
+    async function patchEnterpriseStatus(enterpriseId) {
         try {
             const { data: res } = await TempAdminApi.request({
                 method: HttpMethod.PATCH,
-                url: EndPoint.PATCH_USER_STATUS,
-                path: { userId: userId },
+                url: EndPoint.PATCH_ENTERPRISE_STATUS,
+                path: { enterpriseId: enterpriseId },
                 data: { status: 'INACTIVE' },
             });
 
@@ -101,8 +113,8 @@ const Enterprise = ({ match }) => {
                 return;
             }
 
-            alert('사용자 삭제에 성공하였습니다.');
-            history.push('/users');
+            alert('업체 삭제에 성공하였습니다.');
+            history.push('/enterprises');
         } catch (error) {
             console.log(error);
             alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -116,34 +128,55 @@ const Enterprise = ({ match }) => {
 
     // 수정 버튼 onClick
     function onPatchButtonClick() {
-        // if (!isEditing) {
-        //     setIsEditing(true);
-        //     return;
-        // }
-        // if (isEmpty(email.trim())) {
-        //     alert('이메일을 입력해주세요.');
-        //     return;
-        // }
-        // if (!isValidEmail(email.trim())) {
-        //     alert('이메일 형식을 확인해주세요.');
-        //     return;
-        // }
-        // if (isEmpty(nickname.trim())) {
-        //     alert('닉네임을 입력해주세요.');
-        //     return;
-        // }
-        // if (!isEmpty(phoneNumber.trim()) && !isValidPhoneNumber(phoneNumber.trim())) {
-        //     alert('전화번호 형식을 확인해주세요.');
-        //     return;
-        // }
-        // if (window.confirm('수정하시겠습니까?')) {
-        //     const parameters = {
-        //         email: email.trim(),
-        //         nickname: nickname.trim(),
-        //         phoneNumber: phoneNumber.trim(),
-        //     };
-        //     patchUser(parameters).then();
-        // }
+        if (!isEditing) {
+            setIsEditing(true);
+            return;
+        }
+        if (isEmpty(korName.trim())) {
+            alert('한글 이름을 입력해주세요.');
+            return;
+        }
+        if (isEmpty(engName.trim())) {
+            alert('영어 이름을 입력해주세요.');
+            return;
+        }
+        if (isEmpty(category.trim())) {
+            alert('카테고리를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(primeLocation.trim())) {
+            alert('대표주소를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(location.trim())) {
+            alert('주소를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(tag.trim())) {
+            alert('태그를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(description.trim())) {
+            alert('설명을 입력해주세요.');
+            return;
+        }
+        if (!isEmpty(phoneNumber.trim()) && !isValidPhoneNumber(phoneNumber.trim())) {
+            alert('전화번호 형식을 확인해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                korName: korName.trim(),
+                engName: engName.trim(),
+                category: category.trim(),
+                primeLocation: primeLocation.trim(),
+                location: location.trim(),
+                tag: tag.trim(),
+                description: description.trim(),
+                phoneNumber: phoneNumber.trim(),
+            };
+            patchEnterprise(parameters).then();
+        }
     }
 
     //프로그램 리스트 조회 API 요청
@@ -202,7 +235,7 @@ const Enterprise = ({ match }) => {
     // 삭제 버튼 onClick
     function onDeleteButtonClick() {
         if (window.confirm('정말로 삭제하시겠습니까?')) {
-            patchUserStatus(enterpriseId).then(() => {});
+            patchEnterpriseStatus(enterpriseId).then(() => {});
         }
     }
 
@@ -210,6 +243,17 @@ const Enterprise = ({ match }) => {
         <CCol>
             <CCard>
                 <CCardBody>
+                    <p>
+                        <div class="text-center">
+                            <img
+                                src={thumbnailURL}
+                                alt=""
+                                class="img-thumbnail"
+                                width="300px"
+                                height="300px"
+                            ></img>
+                        </div>
+                    </p>
                     <div className="form-group">
                         <TextCell label="업체 고유번호" value={enterpriseId} />
                         <TextCell
@@ -260,6 +304,7 @@ const Enterprise = ({ match }) => {
                             value={description}
                             onChange={isEditing ? (e) => setDescription(e.target.value) : null}
                         />
+                        <TextCell label="등록일" value={createdAt} />
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                             <CDataTable
                                 items={programs}

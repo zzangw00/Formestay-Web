@@ -18,6 +18,9 @@ export const EndPoint = {
     GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
 
     GET_PROGRAMS: `${API}/programs/:enterpriseId`,
+
+    PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
+    PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,
 };
 
 const TempAdminApiMap = {
@@ -37,6 +40,8 @@ const TempAdminApiMap = {
     patch: {
         [EndPoint.PATCH_USER]: {},
         [EndPoint.PATCH_USER_STATUS]: {},
+        [EndPoint.PATCH_ENTERPRISE]: {},
+        [EndPoint.PATCH_ENTERPRISE_STATUS]: {},
     },
     put: {},
     delete: {},

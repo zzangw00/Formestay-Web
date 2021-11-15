@@ -54,11 +54,11 @@ const User = ({ match }) => {
                     setSnsId('카카오');
                 }
                 setCreatedAt(user.createdAt);
-                // if (!user.profileImgURL) {
-                //     setProfileImgURL(nullImage);
-                // } else {
-                //     setProfileImgURL(user.profileImgURL);
-                // }
+                if (!user.profileImgURL) {
+                    setProfileImgURL('');
+                } else {
+                    setProfileImgURL(user.profileImgURL);
+                }
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -164,7 +164,13 @@ const User = ({ match }) => {
                 <CCardBody>
                     <p>
                         <div class="text-center">
-                            <img src={profileImgURL} alt="" class="img-thumbnail"></img>
+                            <img
+                                src={profileImgURL}
+                                alt=""
+                                class="img-thumbnail"
+                                width="300px"
+                                height="300px"
+                            ></img>
                         </div>
                     </p>
                     <div className="form-group">
