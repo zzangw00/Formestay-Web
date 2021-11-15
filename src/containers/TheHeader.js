@@ -62,11 +62,11 @@ const TheHeader = () => {
 
             <CHeaderNav className="px-3">
                 <CButton color="info" to="/add-admin" className="mr-1">
-                    회원가입
+                    관리자 추가
                 </CButton>
 
                 <CButton color="info" onClick={() => setInfo(!info)} className="mr-1">
-                    Logout
+                    로그아웃
                 </CButton>
                 <CModal show={info} onClose={() => setInfo(!info)} color="info">
                     <CModalHeader closeButton>
