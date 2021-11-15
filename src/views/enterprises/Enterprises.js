@@ -57,14 +57,14 @@ const Enterprises = () => {
             sorter: true,
         },
         {
-            key: 'engName',
-            label: '영어 이름',
+            key: 'primeLocation',
+            label: '대표 위치',
             filter: true,
             sorter: true,
         },
         {
-            key: 'primeLocation',
-            label: '대표 위치',
+            key: 'createdAt',
+            label: '등록일',
             filter: true,
             sorter: true,
         },
