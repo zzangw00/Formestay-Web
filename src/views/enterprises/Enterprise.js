@@ -96,7 +96,7 @@ const Enterprise = ({ match }) => {
         }
     }
 
-    // 회원 탈퇴 API 요청
+    // 업체 삭제 API 요청
     async function patchEnterpriseStatus(enterpriseId) {
         try {
             const { data: res } = await TempAdminApi.request({
@@ -111,7 +111,7 @@ const Enterprise = ({ match }) => {
                 return;
             }
 
-            alert('업체 삭제에 성공하였습니다.');
+            alert('업체가 삭제 되었습니다.');
             history.push('/enterprises');
         } catch (error) {
             console.log(error);
