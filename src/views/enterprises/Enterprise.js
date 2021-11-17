@@ -7,6 +7,7 @@ import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
 import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
+import { TagsInput } from 'react-tag-input-component';
 
 const Enterprise = ({ match }) => {
     const history = useHistory();
@@ -17,13 +18,13 @@ const Enterprise = ({ match }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [primeLocation, setPrimeLocation] = useState('');
     const [location, setLocation] = useState('');
-    const [tag, setTag] = useState('');
+    const [tag, setTag] = useState([]);
     const [description, setDescription] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [programs, setPrograms] = useState([]);
     const [thumbnailURL, setThumbnailURL] = useState('');
     const [createdAt, setCreatedAt] = useState('');
-
+    const [selected, setSelected] = useState(['papaya', 'apapap']);
     // 사용자 상세 조회 API 요청
     useEffect(() => {
         const getEnterprise = async () => {
@@ -48,9 +49,9 @@ const Enterprise = ({ match }) => {
                 setCategory(enterprise.category);
                 setPrimeLocation(enterprise.primeLocation);
                 setLocation(enterprise.location);
-                setTag(enterprise.tag);
                 setDescription(enterprise.description);
                 setCreatedAt(enterprise.createdAt);
+                setTag(enterprise.tag.split('|'));
                 if (!enterprise.thumbnailURL) {
                     setThumbnailURL('');
                 } else {
@@ -290,12 +291,27 @@ const Enterprise = ({ match }) => {
                             value={location}
                             onChange={isEditing ? (e) => setLocation(e.target.value) : null}
                         />
-                        <TextCell
-                            label="태그"
-                            placeholder="태그를 입력해주세요"
-                            value={tag}
-                            onChange={isEditing ? (e) => setTag(e.target.value) : null}
-                        />
+                        {isEditing ? (
+                            <div
+                                className="row form-group"
+                                // style={{
+                                //     width: '100%',
+                                //     display: 'flex',
+                                //     justifyContent: 'center',
+                                // }}
+                            >
+                                <label name="tag">태그</label>
+                                <TagsInput
+                                    id="tag"
+                                    label="태그"
+                                    placeholder="태그를 입력해주세요"
+                                    value={tag}
+                                    onChange={isEditing ? (e) => setTag(e) : null}
+                                />
+                            </div>
+                        ) : (
+                            <TextCell label="태그" placeholder="태그를 입력해주세요" value={tag} />
+                        )}
                         <TextCell
                             label="설명"
                             placeholder="설명을 입력해주세요"
