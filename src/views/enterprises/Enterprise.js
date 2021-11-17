@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
+import React, {useCallback, useEffect, useState} from 'react';
+import {CCard, CCardBody, CCol, CDataTable, CFormGroup, CLabel} from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
 import { useHistory } from 'react-router-dom';
@@ -7,7 +7,11 @@ import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
 import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
-import { TagsInput } from 'react-tag-input-component';
+import tagStyles from '../../scss/tag.scss'
+import {TagsInput} from 'react-tag-input-component'
+// import ReactTagInput from "@pathofdev/react-tag-input";
+import { WithContext as ReactTags } from 'react-tag-input'
+
 
 const Enterprise = ({ match }) => {
     const history = useHistory();
@@ -41,6 +45,8 @@ const Enterprise = ({ match }) => {
                     return;
                 }
 
+                let tempArr = []
+                let tagArr = []
                 const enterprise1 = res.result;
                 const enterprise = enterprise1[0];
                 setKorName(enterprise.korName);
@@ -51,7 +57,16 @@ const Enterprise = ({ match }) => {
                 setLocation(enterprise.location);
                 setDescription(enterprise.description);
                 setCreatedAt(enterprise.createdAt);
-                setTag(enterprise.tag.split('|'));
+                // setTag(enterprise.tag.split('|'));
+                tempArr = enterprise.tag.split('|')
+                let jsonData
+                for (let i = 0; i < tempArr.length; i++) {
+                  jsonData =  new Object()
+                  jsonData.id = tempArr[i]
+                  jsonData.text = tempArr[i]
+                  tagArr.push(jsonData)
+                }
+                setTag(tagArr)
                 if (!enterprise.thumbnailURL) {
                     setThumbnailURL('');
                 } else {
@@ -238,6 +253,29 @@ const Enterprise = ({ match }) => {
         }
     }
 
+    // const changeTag = (e) => {
+    //   setTag()
+    // }
+
+  const KeyCodes = {
+    comma: 188,
+    enter: 13,
+  };
+
+  const delimiters = [KeyCodes.comma, KeyCodes.enter];
+
+  const handleDelete = useCallback( (i) => {
+    setTag(tag.filter((onetag, index) => index !== i));
+  }, [tag])
+
+  const handleAddition = useCallback((oneTag) => {
+    // let jsonData = new Object()
+    // jsonData.id = tag.length + 1
+    // jsonData.text = oneTag
+    // let testTag = jsonData
+    setTag([...tag, oneTag]);
+  }, [tag])
+
     return (
         <CCol>
             <CCard>
@@ -253,7 +291,7 @@ const Enterprise = ({ match }) => {
                             ></img>
                         </div>
                     </p>
-                    <div className="form-group">
+                    <div>
                         <TextCell label="업체 고유번호" value={enterpriseId} />
                         <TextCell
                             label="한글 이름"
@@ -292,25 +330,38 @@ const Enterprise = ({ match }) => {
                             onChange={isEditing ? (e) => setLocation(e.target.value) : null}
                         />
                         {isEditing ? (
-                            <div
-                                className="row form-group"
-                                // style={{
-                                //     width: '100%',
-                                //     display: 'flex',
-                                //     justifyContent: 'center',
-                                // }}
-                            >
+                            <CFormGroup row>
+                              <CCol md="2" align="right">
                                 <label name="tag">태그</label>
-                                <TagsInput
-                                    id="tag"
-                                    label="태그"
-                                    placeholder="태그를 입력해주세요"
-                                    value={tag}
-                                    onChange={isEditing ? (e) => setTag(e) : null}
+                              </CCol>
+                              <div className="app" style={{marginLeft: "10px"}}>
+                                <ReactTags
+                                  tags={tag}
+                                  suggestions={tag}
+                                  inline
+                                  handleDelete={handleDelete}
+                                  handleAddition={handleAddition}
+                                  delimiters={delimiters}
+                                  placeholder="입력후 엔터 눌러주세요."
                                 />
-                            </div>
+                              </div>
+                            </CFormGroup>
+
                         ) : (
-                            <TextCell label="태그" placeholder="태그를 입력해주세요" value={tag} />
+                          <CFormGroup row>
+                            <CCol md="2" align="right">
+                              <label name="tag">태그</label>
+                            </CCol>
+                            <div className="app" style={{marginLeft: "10px"}}>
+                              <ReactTags
+                                tags={tag}
+                                suggestions={tag}
+                                inline
+                                delimiters={delimiters}
+                                placeholder="수정하기 버튼 클릭해주세요."
+                              />
+                            </div>
+                          </CFormGroup>
                         )}
                         <TextCell
                             label="설명"
