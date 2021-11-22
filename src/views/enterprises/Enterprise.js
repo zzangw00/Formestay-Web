@@ -20,7 +20,6 @@ const Enterprise = ({ match }) => {
     const [enterpriseId] = useState(match.params.enterpriseId);
     const [korName, setKorName] = useState('');
     const [engName, setEngName] = useState('');
-    const [category, setCategory] = useState(null);
     const [categoryId, setCategoryId] = useState('1');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [primeLocation, setPrimeLocation] = useState('');
@@ -56,7 +55,6 @@ const Enterprise = ({ match }) => {
                 setKorName(enterprise.korName);
                 setEngName(enterprise.engName);
                 setPhoneNumber(enterprise.phoneNumber);
-                setCategory(enterprise.category);
                 setPrimeLocation(enterprise.primeLocation);
                 setLocation(enterprise.location);
                 setDescription(enterprise.description);
@@ -76,16 +74,12 @@ const Enterprise = ({ match }) => {
                     setThumbnailURL(enterprise.thumbnailURL);
                 }
                 if (enterprise.category == 1) {
-                    setCategory('단식원');
                     setCategoryId('1');
                 } else if (enterprise.category == 2) {
-                    setCategory('템플스테이');
                     setCategoryId('2');
                 } else if (enterprise.category == 3) {
-                    setCategory('힐링캠프');
                     setCategoryId('3');
                 } else {
-                    setCategory('산후조리원');
                     setCategoryId('4');
                 }
             } catch (error) {
@@ -236,7 +230,7 @@ const Enterprise = ({ match }) => {
                     path: { enterpriseId: enterpriseId },
                 });
 
-                if (!res?.isSuccess || isEmpty(res?.result)) {
+                if (!res?.isSuccess) {
                     if (res?.code === 2002) {
                         history.push('/enterprises');
                     } else {

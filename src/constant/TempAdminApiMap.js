@@ -22,6 +22,8 @@ export const EndPoint = {
 
     PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
     PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,
+
+    POST_ENTERPRISE: `${API}/enterprise`,
 };
 
 const TempAdminApiMap = {
@@ -37,6 +39,7 @@ const TempAdminApiMap = {
         [EndPoint.POST_ADMIN_LOGIN]: {},
         [EndPoint.POST_USER]: {},
         [EndPoint.POST_ADMIN]: {},
+        [EndPoint.POST_ENTERPRISE]: {},
     },
     patch: {
         [EndPoint.PATCH_USER]: {},

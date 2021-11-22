@@ -26,7 +26,7 @@ export default [
             {
                 _tag: 'CSidebarNavItem',
                 name: '업체 추가',
-                to: '/enterprises',
+                to: '/add-enterprise',
             },
         ],
     },
