@@ -24,7 +24,7 @@ const Program = ({ match }) => {
     const [createdAt, setCreatedAt] = useState('');
     // 프로그램 상세 조회 API 요청
     useEffect(() => {
-        const getUser = async () => {
+        const getProgram = async () => {
             try {
                 const { data: res } = await TempAdminApi.request({
                     method: HttpMethod.GET,

@@ -18,6 +18,7 @@ export const EndPoint = {
     GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
 
     GET_PROGRAMS: `${API}/programs/:enterpriseId`,
+    GET_PROGRAM: `${API}/programs/:programId`,
 
     PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
     PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,

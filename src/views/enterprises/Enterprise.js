@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {CCard, CCardBody, CCol, CDataTable, CFormGroup, CLabel} from '@coreui/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { CCard, CCardBody, CCol, CDataTable, CFormGroup, CLabel } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
 import { useHistory } from 'react-router-dom';
@@ -7,11 +7,13 @@ import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
 import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
-import tagStyles from '../../scss/tag.scss'
-import {TagsInput} from 'react-tag-input-component'
+import tagStyles from '../../scss/tag.scss';
+import { TagsInput } from 'react-tag-input-component';
 // import ReactTagInput from "@pathofdev/react-tag-input";
-import { WithContext as ReactTags } from 'react-tag-input'
-
+import { WithContext as ReactTags } from 'react-tag-input';
+import firebase from 'firebase';
+import { firebaseConfig } from '../../utils/firebase/configFirebase';
+import { handleFirebaseUpload } from '../../utils/firebase/uploadFirebase';
 
 const Enterprise = ({ match }) => {
     const history = useHistory();
@@ -19,6 +21,7 @@ const Enterprise = ({ match }) => {
     const [korName, setKorName] = useState('');
     const [engName, setEngName] = useState('');
     const [category, setCategory] = useState(null);
+    const [categoryId, setCategoryId] = useState('1');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [primeLocation, setPrimeLocation] = useState('');
     const [location, setLocation] = useState('');
@@ -28,7 +31,8 @@ const Enterprise = ({ match }) => {
     const [programs, setPrograms] = useState([]);
     const [thumbnailURL, setThumbnailURL] = useState('');
     const [createdAt, setCreatedAt] = useState('');
-    const [selected, setSelected] = useState(['papaya', 'apapap']);
+    const [file, setFile] = useState(null);
+
     // 사용자 상세 조회 API 요청
     useEffect(() => {
         const getEnterprise = async () => {
@@ -45,8 +49,8 @@ const Enterprise = ({ match }) => {
                     return;
                 }
 
-                let tempArr = []
-                let tagArr = []
+                let tempArr = [];
+                let tagArr = [];
                 const enterprise1 = res.result;
                 const enterprise = enterprise1[0];
                 setKorName(enterprise.korName);
@@ -57,16 +61,15 @@ const Enterprise = ({ match }) => {
                 setLocation(enterprise.location);
                 setDescription(enterprise.description);
                 setCreatedAt(enterprise.createdAt);
-                // setTag(enterprise.tag.split('|'));
-                tempArr = enterprise.tag.split('|')
-                let jsonData
+                tempArr = enterprise.tag.split('|');
+                let jsonData;
                 for (let i = 0; i < tempArr.length; i++) {
-                  jsonData =  new Object()
-                  jsonData.id = tempArr[i]
-                  jsonData.text = tempArr[i]
-                  tagArr.push(jsonData)
+                    jsonData = new Object();
+                    jsonData.id = tempArr[i];
+                    jsonData.text = tempArr[i];
+                    tagArr.push(jsonData);
                 }
-                setTag(tagArr)
+                setTag(tagArr);
                 if (!enterprise.thumbnailURL) {
                     setThumbnailURL('');
                 } else {
@@ -74,12 +77,16 @@ const Enterprise = ({ match }) => {
                 }
                 if (enterprise.category == 1) {
                     setCategory('단식원');
+                    setCategoryId('1');
                 } else if (enterprise.category == 2) {
                     setCategory('템플스테이');
+                    setCategoryId('2');
                 } else if (enterprise.category == 3) {
                     setCategory('힐링캠프');
+                    setCategoryId('3');
                 } else {
                     setCategory('산후조리원');
+                    setCategoryId('4');
                 }
             } catch (error) {
                 console.log(error);
@@ -134,6 +141,25 @@ const Enterprise = ({ match }) => {
             alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
         }
     }
+    const onFileChange = useCallback(async (event) => {
+        const previewImage = document.getElementById('thumbnailImg');
+        // const {
+        //     target: { files, value },
+        // } = event;
+        const theFile = event.target.files[0];
+        let reader = new FileReader();
+        setFile(event.target.files[0]);
+        reader.onload = (e) => {
+            previewImage.setAttribute('src', e.target.result);
+        };
+        reader.readAsDataURL(theFile);
+        let firebaseURL = await handleFirebaseUpload(
+            'enterprise',
+            theFile.name,
+            event.target.files[0],
+        );
+        setThumbnailURL(firebaseURL);
+    }, []);
 
     // 뒤로가기 버튼 onClick
     function onBackButtonClick() {
@@ -142,6 +168,12 @@ const Enterprise = ({ match }) => {
 
     // 수정 버튼 onClick
     function onPatchButtonClick() {
+        let tags = '';
+        for (let i = 0; i < tag.length; i++) {
+            tags += tag[i].text;
+            tags += '|';
+        }
+        tags = tags.substring(0, tags.length - 1);
         if (!isEditing) {
             setIsEditing(true);
             return;
@@ -154,7 +186,7 @@ const Enterprise = ({ match }) => {
             alert('영어 이름을 입력해주세요.');
             return;
         }
-        if (isEmpty(category.trim())) {
+        if (isEmpty(categoryId.trim())) {
             alert('카테고리를 입력해주세요.');
             return;
         }
@@ -166,7 +198,7 @@ const Enterprise = ({ match }) => {
             alert('주소를 입력해주세요.');
             return;
         }
-        if (isEmpty(tag.trim())) {
+        if (isEmpty(tags.trim())) {
             alert('태그를 입력해주세요.');
             return;
         }
@@ -182,12 +214,13 @@ const Enterprise = ({ match }) => {
             const parameters = {
                 korName: korName.trim(),
                 engName: engName.trim(),
-                category: category.trim(),
+                category: categoryId.trim(),
                 primeLocation: primeLocation.trim(),
                 location: location.trim(),
-                tag: tag.trim(),
+                tag: tags.trim(),
                 description: description.trim(),
                 phoneNumber: phoneNumber.trim(),
+                thumbnailURL: thumbnailURL.trim(),
             };
             patchEnterprise(parameters).then();
         }
@@ -257,24 +290,35 @@ const Enterprise = ({ match }) => {
     //   setTag()
     // }
 
-  const KeyCodes = {
-    comma: 188,
-    enter: 13,
-  };
+    const KeyCodes = {
+        comma: 188,
+        enter: 13,
+    };
 
-  const delimiters = [KeyCodes.comma, KeyCodes.enter];
+    const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-  const handleDelete = useCallback( (i) => {
-    setTag(tag.filter((onetag, index) => index !== i));
-  }, [tag])
+    const handleDelete = useCallback(
+        (i) => {
+            setTag(tag.filter((onetag, index) => index !== i));
+        },
+        [tag],
+    );
 
-  const handleAddition = useCallback((oneTag) => {
-    // let jsonData = new Object()
-    // jsonData.id = tag.length + 1
-    // jsonData.text = oneTag
-    // let testTag = jsonData
-    setTag([...tag, oneTag]);
-  }, [tag])
+    const handleAddition = useCallback(
+        (oneTag) => {
+            // let jsonData = new Object()
+            // jsonData.id = tag.length + 1
+            // jsonData.text = oneTag
+            // let testTag = jsonData
+            setTag([...tag, oneTag]);
+        },
+        [tag],
+    );
+
+    const onChangeCategory = useCallback((e) => {
+        let target = document.getElementById('categoryId');
+        setCategoryId(target.options[target.selectedIndex].value);
+    }, []);
 
     return (
         <CCol>
@@ -283,6 +327,7 @@ const Enterprise = ({ match }) => {
                     <p>
                         <div class="text-center">
                             <img
+                                id="thumbnailImg"
                                 src={thumbnailURL}
                                 alt=""
                                 class="img-thumbnail"
@@ -305,12 +350,46 @@ const Enterprise = ({ match }) => {
                             value={engName}
                             onChange={isEditing ? (e) => setEngName(e.target.value) : null}
                         />
-                        <TextCell
-                            label="카테고리"
-                            placeholder="카테고리를 입력해주세요"
-                            value={category}
-                            onChange={isEditing ? (e) => setCategory(e.target.value) : null}
-                        />
+                        {isEditing ? (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="thumbnailImg">카테고리</label>
+                                </CCol>
+                                <div style={{ marginLeft: '15px' }}>
+                                    <select
+                                        id="categoryId"
+                                        value={categoryId}
+                                        onChange={onChangeCategory}
+                                        style={{ width: '100px', height: '30px' }}
+                                    >
+                                        <option value="1">단식원</option>
+                                        <option value="2">템플스테이</option>
+                                        <option value="3">힐링캠프</option>
+                                        <option value="4">산후조리원</option>
+                                    </select>
+                                </div>
+                            </CFormGroup>
+                        ) : (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="thumbnailImg">카테고리</label>
+                                </CCol>
+                                <div style={{ marginLeft: '15px' }}>
+                                    <select
+                                        id="categoryId"
+                                        value={categoryId}
+                                        onChange={onChangeCategory}
+                                        disabled
+                                        style={{ width: '100px', height: '30px' }}
+                                    >
+                                        <option value="1">단식원</option>
+                                        <option value="2">템플스테이</option>
+                                        <option value="3">힐링캠프</option>
+                                        <option value="4">산후조리원</option>
+                                    </select>
+                                </div>
+                            </CFormGroup>
+                        )}
                         <TextCell
                             label="전화번호"
                             placeholder="전화번호를 입력해주세요"
@@ -331,37 +410,36 @@ const Enterprise = ({ match }) => {
                         />
                         {isEditing ? (
                             <CFormGroup row>
-                              <CCol md="2" align="right">
-                                <label name="tag">태그</label>
-                              </CCol>
-                              <div className="app" style={{marginLeft: "10px"}}>
-                                <ReactTags
-                                  tags={tag}
-                                  suggestions={tag}
-                                  inline
-                                  handleDelete={handleDelete}
-                                  handleAddition={handleAddition}
-                                  delimiters={delimiters}
-                                  placeholder="입력후 엔터 눌러주세요."
-                                />
-                              </div>
+                                <CCol md="2" align="right">
+                                    <label name="tag">태그</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '10px' }}>
+                                    <ReactTags
+                                        tags={tag}
+                                        suggestions={tag}
+                                        inline
+                                        handleDelete={handleDelete}
+                                        handleAddition={handleAddition}
+                                        delimiters={delimiters}
+                                        placeholder="입력후 엔터 눌러주세요."
+                                    />
+                                </div>
                             </CFormGroup>
-
                         ) : (
-                          <CFormGroup row>
-                            <CCol md="2" align="right">
-                              <label name="tag">태그</label>
-                            </CCol>
-                            <div className="app" style={{marginLeft: "10px"}}>
-                              <ReactTags
-                                tags={tag}
-                                suggestions={tag}
-                                inline
-                                delimiters={delimiters}
-                                placeholder="수정하기 버튼 클릭해주세요."
-                              />
-                            </div>
-                          </CFormGroup>
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="tag">태그</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '10px' }}>
+                                    <ReactTags
+                                        tags={tag}
+                                        suggestions={tag}
+                                        inline
+                                        delimiters={delimiters}
+                                        placeholder="수정하기 버튼 클릭해주세요."
+                                    />
+                                </div>
+                            </CFormGroup>
                         )}
                         <TextCell
                             label="설명"
@@ -370,6 +448,30 @@ const Enterprise = ({ match }) => {
                             onChange={isEditing ? (e) => setDescription(e.target.value) : null}
                         />
                         <TextCell label="등록일" value={createdAt} />
+                        {isEditing ? (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="thumbnailImg">이미지</label>
+                                </CCol>
+                                <div style={{ marginLeft: '15px' }}>
+                                    <input type="file" accept="image/*" onChange={onFileChange} />
+                                </div>
+                            </CFormGroup>
+                        ) : (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="thumbnailImg">이미지</label>
+                                </CCol>
+                                <div style={{ marginLeft: '15px' }}>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={onFileChange}
+                                        disabled
+                                    />
+                                </div>
+                            </CFormGroup>
+                        )}
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                             <CDataTable
                                 items={programs}
