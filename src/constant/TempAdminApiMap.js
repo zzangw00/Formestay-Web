@@ -18,12 +18,14 @@ export const EndPoint = {
     GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
 
     GET_PROGRAMS: `${API}/programs/:enterpriseId`,
-    GET_PROGRAM: `${API}/programs/:programId`,
+    GET_PROGRAM: `${API}/program/:programId`,
 
     PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
     PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,
 
     POST_ENTERPRISE: `${API}/enterprise`,
+
+    PATCH_PROGRAM_STATUS: `${API}/program/:programId/status`,
 };
 
 const TempAdminApiMap = {
@@ -34,6 +36,7 @@ const TempAdminApiMap = {
         [EndPoint.GET_ENTERPRISE]: {},
         [EndPoint.GET_AUTO_LOGIN]: {},
         [EndPoint.GET_PROGRAMS]: {},
+        [EndPoint.GET_PROGRAM]: {},
     },
     post: {
         [EndPoint.POST_ADMIN_LOGIN]: {},
