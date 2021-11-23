@@ -8,6 +8,7 @@ import BottomButtons from '../component/Button';
 import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
 import tagStyles from '../../scss/tag.scss';
+// import modalStyles from '../../scss/_custom.scss';
 import { TagsInput } from 'react-tag-input-component';
 // import ReactTagInput from "@pathofdev/react-tag-input";
 import { WithContext as ReactTags } from 'react-tag-input';
@@ -63,6 +64,7 @@ const Enterprise = ({ match }) => {
     const [personPerMoney, setPersonPerMoney] = useState('');
     const [dayPerMoney, setDayPerMoney] = useState('');
     const [createdAtP, setCreatedAtP] = useState('');
+    const [isEditingP, setIsEditingP] = useState(false);
     function openModal(programId) {
         setIsOpen(true);
         setProgramId(programId);
@@ -74,6 +76,7 @@ const Enterprise = ({ match }) => {
 
     function closeModal() {
         setIsOpen(false);
+        history.go(0);
     }
     // 사용자 상세 조회 API 요청
     useEffect(() => {
@@ -146,7 +149,7 @@ const Enterprise = ({ match }) => {
 
             if (!res?.isSuccess || isEmpty(res?.result)) {
                 alert(res.message);
-                history.push('/enterprises');
+                history.go(0);
                 return;
             }
 
@@ -295,6 +298,26 @@ const Enterprise = ({ match }) => {
         setThumbnailURL(firebaseURL);
     }, []);
 
+    const onFileChangeP = useCallback(async (event) => {
+        const previewImage = document.getElementById('thumbnailImgP');
+        // const {
+        //     target: { files, value },
+        // } = event;
+        const theFile = event.target.files[0];
+        let reader = new FileReader();
+        setFile(event.target.files[0]);
+        reader.onload = (e) => {
+            previewImage.setAttribute('src', e.target.result);
+        };
+        reader.readAsDataURL(theFile);
+        let firebaseURL = await handleFirebaseUpload(
+            'program',
+            theFile.name,
+            event.target.files[0],
+        );
+        setThumbnailURLP(firebaseURL);
+    }, []);
+
     // 뒤로가기 버튼 onClick
     function onBackButtonClick() {
         history.push(`/enterprises`);
@@ -369,7 +392,7 @@ const Enterprise = ({ match }) => {
         }
         tags = tags.substring(0, tags.length - 1);
         if (!isEditing) {
-            setIsEditing(true);
+            setIsEditingP(true);
             return;
         }
         if (isEmpty(name.trim())) {
@@ -721,10 +744,12 @@ const Enterprise = ({ match }) => {
                         <div>
                             <Modal
                                 isOpen={modalIsOpen}
-                                // onAfterOpen={afterOpenModal}
                                 onRequestClose={closeModal}
+                                // classNames={{
+                                //     overlay: 'customOverlay',
+                                //     modal: 'customModal',
+                                // }}
                                 style={customStyles}
-                                contentLabel="Example Modal"
                             >
                                 <p>
                                     <div class="text-center">
@@ -742,17 +767,17 @@ const Enterprise = ({ match }) => {
                                     label="프로그램명"
                                     placeholder="프로그램명을 입력해주세요"
                                     value={name}
-                                    onChange={isEditing ? (e) => setName(e.target.value) : null}
+                                    onChange={isEditingP ? (e) => setName(e.target.value) : null}
                                 />
                                 <TextCell
                                     label="설명"
                                     placeholder="설명을 입력해주세요"
                                     value={descriptionP}
                                     onChange={
-                                        isEditing ? (e) => setDescription(e.target.value) : null
+                                        isEditingP ? (e) => setDescription(e.target.value) : null
                                     }
                                 />
-                                {/* {isEditing ? (
+                                {isEditingP ? (
                                     <CFormGroup row>
                                         <CCol md="2" align="right">
                                             <label name="tag">태그</label>
@@ -769,28 +794,28 @@ const Enterprise = ({ match }) => {
                                             />
                                         </div>
                                     </CFormGroup>
-                                ) : ( */}
-                                <CFormGroup row>
-                                    <CCol md="2" align="right">
-                                        <label name="tag">태그</label>
-                                    </CCol>
-                                    <div className="app" style={{ marginLeft: '10px' }}>
-                                        <ReactTags
-                                            tags={tagP}
-                                            suggestions={tagP}
-                                            inline
-                                            delimiters={delimiters}
-                                            placeholder="수정하기 버튼 클릭해주세요."
-                                        />
-                                    </div>
-                                </CFormGroup>
-                                {/* )} */}
+                                ) : (
+                                    <CFormGroup row>
+                                        <CCol md="2" align="right">
+                                            <label name="tag">태그</label>
+                                        </CCol>
+                                        <div className="app" style={{ marginLeft: '10px' }}>
+                                            <ReactTags
+                                                tags={tagP}
+                                                suggestions={tagP}
+                                                inline
+                                                delimiters={delimiters}
+                                                placeholder="수정하기 버튼 클릭해주세요."
+                                            />
+                                        </div>
+                                    </CFormGroup>
+                                )}
                                 <TextCell
                                     label="최소 인원"
                                     placeholder="최소 인원을 입력해주세요"
                                     value={minPerson}
                                     onChange={
-                                        isEditing ? (e) => setMinPerson(e.target.value) : null
+                                        isEditingP ? (e) => setMinPerson(e.target.value) : null
                                     }
                                 />
                                 <TextCell
@@ -798,41 +823,45 @@ const Enterprise = ({ match }) => {
                                     placeholder="최대 인원을 입력해주세요"
                                     value={maxPerson}
                                     onChange={
-                                        isEditing ? (e) => setMaxPerson(e.target.value) : null
+                                        isEditingP ? (e) => setMaxPerson(e.target.value) : null
                                     }
                                 />
                                 <TextCell
                                     label="체크인 시간"
                                     placeholder="체크인 시간을 입력해주세요"
                                     value={checkIn}
-                                    onChange={isEditing ? (e) => setCheckIn(e.target.value) : null}
+                                    onChange={isEditingP ? (e) => setCheckIn(e.target.value) : null}
                                 />
                                 <TextCell
                                     label="체크아웃 시간"
                                     placeholder="체크아웃 시간을 입력해주세요"
                                     value={checkOut}
-                                    onChange={isEditing ? (e) => setCheckOut(e.target.value) : null}
+                                    onChange={
+                                        isEditingP ? (e) => setCheckOut(e.target.value) : null
+                                    }
                                 />
                                 <TextCell
                                     label="프로그램 정보"
                                     placeholder="프로그램 정보를 입력해주세요"
                                     value={programInfo}
                                     onChange={
-                                        isEditing ? (e) => setProgramInfo(e.target.value) : null
+                                        isEditingP ? (e) => setProgramInfo(e.target.value) : null
                                     }
                                 />
                                 <TextCell
                                     label="식단 정보"
                                     placeholder="식단 정보를 입력해주세요"
                                     value={mealInfo}
-                                    onChange={isEditing ? (e) => setMealInfo(e.target.value) : null}
+                                    onChange={
+                                        isEditingP ? (e) => setMealInfo(e.target.value) : null
+                                    }
                                 />
                                 <TextCell
                                     label="1인당 금액"
                                     placeholder="1인당 금액을 입력해주세요"
                                     value={personPerMoney}
                                     onChange={
-                                        isEditing ? (e) => setPersonPerMoney(e.target.value) : null
+                                        isEditingP ? (e) => setPersonPerMoney(e.target.value) : null
                                     }
                                 />
                                 <TextCell
@@ -840,14 +869,43 @@ const Enterprise = ({ match }) => {
                                     placeholder="1일당 금액을 입력해주세요"
                                     value={dayPerMoney}
                                     onChange={
-                                        isEditing ? (e) => setDayPerMoney(e.target.value) : null
+                                        isEditingP ? (e) => setDayPerMoney(e.target.value) : null
                                     }
                                 />
+                                <TextCell label="등록일" value={createdAtP} />
+                                {isEditingP ? (
+                                    <CFormGroup row>
+                                        <CCol md="2" align="right">
+                                            <label name="thumbnailImg">이미지</label>
+                                        </CCol>
+                                        <div style={{ marginLeft: '15px' }}>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={onFileChangeP}
+                                            />
+                                        </div>
+                                    </CFormGroup>
+                                ) : (
+                                    <CFormGroup row>
+                                        <CCol md="2" align="right">
+                                            <label name="thumbnailImg">이미지</label>
+                                        </CCol>
+                                        <div style={{ marginLeft: '15px' }}>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={onFileChangeP}
+                                                disabled
+                                            />
+                                        </div>
+                                    </CFormGroup>
+                                )}
                                 <BottomButtons
                                     onCloseClick={closeModal}
                                     onPatchClick={onPatchProgramButtonClick}
                                     onDeleteClick={onDeleteProgramButtonClick}
-                                    patchLabel={isEditing ? '수정완료' : '수정하기'}
+                                    patchLabel={isEditingP ? '수정완료' : '수정하기'}
                                 />
                             </Modal>
                         </div>
