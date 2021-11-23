@@ -49,6 +49,7 @@ const TempAdminApiMap = {
         [EndPoint.PATCH_USER_STATUS]: {},
         [EndPoint.PATCH_ENTERPRISE]: {},
         [EndPoint.PATCH_ENTERPRISE_STATUS]: {},
+        [EndPoint.PATCH_PROGRAM_STATUS]: {},
     },
     put: {},
     delete: {},
