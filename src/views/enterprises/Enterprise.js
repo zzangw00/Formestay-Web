@@ -9,7 +9,7 @@ import { tablePagination, tableScopedSlots, tableStatusField } from '../componen
 import { itemsPerPage } from '../../constant/Constants';
 import tagStyles from '../../scss/tag.scss';
 // import modalStyles from '../../scss/_custom.scss';
-import { TagsInput } from 'react-tag-input-component';
+// import { TagsInput } from 'react-tag-input-component';
 // import ReactTagInput from "@pathofdev/react-tag-input";
 import { WithContext as ReactTags } from 'react-tag-input';
 import firebase from 'firebase';
@@ -17,7 +17,7 @@ import { firebaseConfig } from '../../utils/firebase/configFirebase';
 import { handleFirebaseUpload } from '../../utils/firebase/uploadFirebase';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
-import TimeInput from 'react-time-picker-input/dist/components/TimeInput';
+// import TimeInput from 'react-time-picker-input/dist/components/TimeInput';
 
 const customStyles = {
     content: {
@@ -566,6 +566,14 @@ const Enterprise = ({ match }) => {
         setCategoryId(target.options[target.selectedIndex].value);
     }, []);
 
+    const onChangeCheckInTime = useCallback((e) => {
+      alert(e.target.value)
+    }, [])
+
+    const onChangeCheckOutTime = useCallback((e) => {
+      alert(e.target.value)
+    }, [])
+
     return (
         <CCol>
             <CCard>
@@ -709,7 +717,7 @@ const Enterprise = ({ match }) => {
                                     <label name="thumbnailImg">이미지</label>
                                 </CCol>
                                 <div style={{ marginLeft: '15px' }}>
-                                    <input
+                                    <inputTimeInput
                                         type="file"
                                         accept="image/*"
                                         onChange={onFileChange}
@@ -814,12 +822,13 @@ const Enterprise = ({ match }) => {
                                         <CCol md="2" align="right">
                                             <label name="tag">체크인 시간</label>
                                         </CCol>
-                                        <div className="app" style={{ marginLeft: '10px' }}>
-                                            <TimeInput
-                                                value={checkIn}
-                                                eachInputDropdown
-                                                onChange={(dateString) => setCheckIn(dateString)}
-                                            />
+                                        <div className="app" style={{ marginLeft: '15px' }}>
+                                          <input type="time" id="checkInInput" placeholder={checkIn} onChange={onChangeCheckInTime}/>
+                                            {/*<TimeInput*/}
+                                            {/*    value={checkIn}*/}
+                                            {/*    eachInputDropdown*/}
+                                            {/*    onChange={(dateString) => setCheckIn(dateString)}*/}
+                                            {/*/>*/}
                                         </div>
                                     </CFormGroup>
                                 ) : (
@@ -837,12 +846,13 @@ const Enterprise = ({ match }) => {
                                         <CCol md="2" align="right">
                                             <label name="tag">체크아웃 시간</label>
                                         </CCol>
-                                        <div className="app" style={{ marginLeft: '10px' }}>
-                                            <TimeInput
-                                                value={checkOut}
-                                                eachInputDropdown
-                                                onChange={(dateString) => setCheckOut(dateString)}
-                                            />
+                                        <div className="app" style={{ marginLeft: '15px' }}>
+                                          <input type="time" id="checkOutInput" placeholder={checkOut} onChange={onChangeCheckOutTime}/>
+                                            {/*<TimeInput*/}
+                                            {/*    value={checkOut}*/}
+                                            {/*    eachInputDropdown*/}
+                                            {/*    onChange={(dateString) => setCheckOut(dateString)}*/}
+                                            {/*/>*/}
                                         </div>
                                     </CFormGroup>
                                 ) : (
