@@ -17,6 +17,7 @@ import { firebaseConfig } from '../../utils/firebase/configFirebase';
 import { handleFirebaseUpload } from '../../utils/firebase/uploadFirebase';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
+import TimeInput from 'react-time-picker-input/dist/components/TimeInput';
 
 const customStyles = {
     content: {
@@ -55,15 +56,14 @@ const Enterprise = ({ match }) => {
     const [descriptionP, setDescriptionP] = useState('');
     const [tagP, setTagP] = useState([]);
     const [thumbnailURLP, setThumbnailURLP] = useState('');
-    const [minPerson, setMinPerson] = useState(false);
-    const [maxPerson, setMaxPerson] = useState(false);
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
     const [programInfo, setProgramInfo] = useState('');
     const [mealInfo, setMealInfo] = useState('');
-    const [personPerMoney, setPersonPerMoney] = useState('');
-    const [dayPerMoney, setDayPerMoney] = useState('');
     const [createdAtP, setCreatedAtP] = useState('');
+    const [fileP, setFileP] = useState(null);
+    const [roomPrice, setRoomPrice] = useState([]);
+    const [showRoomPrice, setShowRoomPrice] = useState([]);
     const [isEditingP, setIsEditingP] = useState(false);
     function openModal(programId) {
         setIsOpen(true);
@@ -78,7 +78,7 @@ const Enterprise = ({ match }) => {
         setIsOpen(false);
         history.go(0);
     }
-    // 사용자 상세 조회 API 요청
+    // 업체 상세 조회 API 요청
     useEffect(() => {
         const getEnterprise = async () => {
             try {
@@ -155,21 +155,32 @@ const Enterprise = ({ match }) => {
 
             let tempArr = [];
             let tagArr = [];
+            let priceArr = [];
             const program1 = res.result;
             const program = program1[0];
-            setName(program.name);
-            setThumbnailURLP(program.thumbnailURL);
-            setMaxPerson(program.maxPerson);
-            setMinPerson(program.minPerson);
-            setCheckIn(program.checkIn);
-            setCheckOut(program.checkOut);
-            setProgramInfo(program.programInfo);
-            setMealInfo(program.mealInfo);
-            setPersonPerMoney(program.personPerMoney);
-            setDayPerMoney(program.dayPerMoney);
-            setDescriptionP(program.description);
-            setCreatedAtP(program.createdAt);
-            tempArr = program.tag.split('|');
+            setName(program1.programResult[0].name);
+            setThumbnailURLP(program1.programResult[0].thumbnailURL);
+            setCheckIn(program1.programResult[0].checkIn);
+            setCheckOut(program1.programResult[0].checkOut);
+            setProgramInfo(program1.programResult[0].programInfo);
+            setMealInfo(program1.programResult[0].mealInfo);
+            setDescriptionP(program1.programResult[0].description);
+            setCreatedAtP(program1.programResult[0].createdAt);
+            tempArr = program1.programResult[0].tag.split('|');
+            for (let i = 0; i < program1.programRoomResult.length; i++) {
+                priceArr.push([
+                    program1.programRoomResult[i].inRoom,
+                    program1.programRoomResult[i].price,
+                ]);
+            }
+            setRoomPrice(priceArr);
+            let showPriceArr = [];
+            let tempString = '';
+            for (let i = 0; i < priceArr.length; i++) {
+                tempString = String(priceArr[i][0]) + '인실: ' + String(priceArr[i][1]) + '원';
+                showPriceArr.push(tempString);
+            }
+            setShowRoomPrice(showPriceArr);
             let jsonData;
             for (let i = 0; i < tempArr.length; i++) {
                 jsonData = new Object();
@@ -178,10 +189,10 @@ const Enterprise = ({ match }) => {
                 tagArr.push(jsonData);
             }
             setTagP(tagArr);
-            if (!program.thumbnailURL) {
+            if (!program1.programResult[0].thumbnailURL) {
                 setThumbnailURLP('');
             } else {
-                setThumbnailURLP(program.thumbnailURL);
+                setThumbnailURLP(program1.programResult[0].thumbnailURL);
             }
         } catch (error) {
             console.log(error);
@@ -305,7 +316,7 @@ const Enterprise = ({ match }) => {
         // } = event;
         const theFile = event.target.files[0];
         let reader = new FileReader();
-        setFile(event.target.files[0]);
+        setFileP(event.target.files[0]);
         reader.onload = (e) => {
             previewImage.setAttribute('src', e.target.result);
         };
@@ -407,14 +418,6 @@ const Enterprise = ({ match }) => {
             alert('태그를 입력해주세요.');
             return;
         }
-        if (isEmpty(minPerson)) {
-            alert('최소인원을 입력해주세요.');
-            return;
-        }
-        if (isEmpty(maxPerson)) {
-            alert('최대인원을 입력해주세요.');
-            return;
-        }
         if (isEmpty(checkIn.trim())) {
             alert('체크인 시간을 입력해주세요.');
             return;
@@ -431,27 +434,15 @@ const Enterprise = ({ match }) => {
             alert('식단 정보를 입력해주세요.');
             return;
         }
-        if (!isEmpty(personPerMoney.trim())) {
-            alert('1인당 금액을 입력해주세요.');
-            return;
-        }
-        if (!isEmpty(dayPerMoney.trim())) {
-            alert('1일당 금액을 입력해주세요.');
-            return;
-        }
         if (window.confirm('수정하시겠습니까?')) {
             const parameters = {
                 name: name.trim(),
                 description: descriptionP.trim(),
                 tag: tags.trim(),
-                minPerson: minPerson.trim(),
-                maxPerson: maxPerson.trim(),
                 checkIn: checkIn.trim(),
                 checkOut: checkOut.trim(),
                 programInfo: programInfo.trim(),
                 mealInfo: mealInfo.trim(),
-                personPerMoney: personPerMoney.trim(),
-                dayPerMoney: dayPerMoney.trim(),
             };
             patchProgram(parameters).then();
         }
@@ -811,35 +802,59 @@ const Enterprise = ({ match }) => {
                                     </CFormGroup>
                                 )}
                                 <TextCell
-                                    label="최소 인원"
-                                    placeholder="최소 인원을 입력해주세요"
-                                    value={minPerson}
+                                    label="가격 정보"
+                                    placeholder="가격 정보를 입력 해주세요"
+                                    value={showRoomPrice}
                                     onChange={
-                                        isEditingP ? (e) => setMinPerson(e.target.value) : null
+                                        isEditingP ? (e) => setRoomPrice(e.target.value) : null
                                     }
                                 />
-                                <TextCell
-                                    label="최대 인원"
-                                    placeholder="최대 인원을 입력해주세요"
-                                    value={maxPerson}
-                                    onChange={
-                                        isEditingP ? (e) => setMaxPerson(e.target.value) : null
-                                    }
-                                />
-                                <TextCell
-                                    label="체크인 시간"
-                                    placeholder="체크인 시간을 입력해주세요"
-                                    value={checkIn}
-                                    onChange={isEditingP ? (e) => setCheckIn(e.target.value) : null}
-                                />
-                                <TextCell
-                                    label="체크아웃 시간"
-                                    placeholder="체크아웃 시간을 입력해주세요"
-                                    value={checkOut}
-                                    onChange={
-                                        isEditingP ? (e) => setCheckOut(e.target.value) : null
-                                    }
-                                />
+                                {isEditingP ? (
+                                    <CFormGroup row>
+                                        <CCol md="2" align="right">
+                                            <label name="tag">체크인 시간</label>
+                                        </CCol>
+                                        <div className="app" style={{ marginLeft: '10px' }}>
+                                            <TimeInput
+                                                value={checkIn}
+                                                eachInputDropdown
+                                                onChange={(dateString) => setCheckIn(dateString)}
+                                            />
+                                        </div>
+                                    </CFormGroup>
+                                ) : (
+                                    <TextCell
+                                        label="체크인 시간"
+                                        placeholder="체크인 시간을 입력해주세요"
+                                        value={checkIn}
+                                        onChange={
+                                            isEditingP ? (e) => setCheckIn(e.target.value) : null
+                                        }
+                                    />
+                                )}
+                                {isEditingP ? (
+                                    <CFormGroup row>
+                                        <CCol md="2" align="right">
+                                            <label name="tag">체크아웃 시간</label>
+                                        </CCol>
+                                        <div className="app" style={{ marginLeft: '10px' }}>
+                                            <TimeInput
+                                                value={checkOut}
+                                                eachInputDropdown
+                                                onChange={(dateString) => setCheckOut(dateString)}
+                                            />
+                                        </div>
+                                    </CFormGroup>
+                                ) : (
+                                    <TextCell
+                                        label="체크아웃 시간"
+                                        placeholder="체크아웃 시간을 입력해주세요"
+                                        value={checkOut}
+                                        onChange={
+                                            isEditingP ? (e) => setCheckOut(e.target.value) : null
+                                        }
+                                    />
+                                )}
                                 <TextCell
                                     label="프로그램 정보"
                                     placeholder="프로그램 정보를 입력해주세요"
@@ -854,22 +869,6 @@ const Enterprise = ({ match }) => {
                                     value={mealInfo}
                                     onChange={
                                         isEditingP ? (e) => setMealInfo(e.target.value) : null
-                                    }
-                                />
-                                <TextCell
-                                    label="1인당 금액"
-                                    placeholder="1인당 금액을 입력해주세요"
-                                    value={personPerMoney}
-                                    onChange={
-                                        isEditingP ? (e) => setPersonPerMoney(e.target.value) : null
-                                    }
-                                />
-                                <TextCell
-                                    label="1일당 금액"
-                                    placeholder="1일당 금액을 입력해주세요"
-                                    value={dayPerMoney}
-                                    onChange={
-                                        isEditingP ? (e) => setDayPerMoney(e.target.value) : null
                                     }
                                 />
                                 <TextCell label="등록일" value={createdAtP} />
