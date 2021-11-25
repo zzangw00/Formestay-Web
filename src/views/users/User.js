@@ -78,6 +78,7 @@ const User = ({ match }) => {
                 path: { userId: userId },
                 data: parameters,
             });
+
             if (!res?.isSuccess) {
                 alert(res.message);
                 return;

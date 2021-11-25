@@ -12,6 +12,8 @@ const Enterprises = React.lazy(() => import('./views/enterprises/Enterprises'));
 const Enterprise = React.lazy(() => import('./views/enterprises/Enterprise'));
 const AddEnterprise = React.lazy(() => import('./views/enterprises/AddEnterprise'));
 
+const Program = React.lazy(() => import('./views/programs/Program'));
+
 const routes = [
     { path: '/users', exact: true, name: '회원 목록 조회', component: Users },
     { path: '/users/:userId', exact: true, name: '회원 상세 조회', component: User },
@@ -29,6 +31,13 @@ const routes = [
         component: Enterprise,
     },
     { path: '/add-enterprise', exact: true, name: '업체 추가', component: AddEnterprise },
+
+    {
+        path: '/program/:programId',
+        exact: true,
+        name: '프로그램 상세 조회',
+        component: Program,
+    },
 ];
 
 export default routes;
