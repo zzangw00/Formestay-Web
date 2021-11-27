@@ -29,7 +29,7 @@ const PostButton = (props) => {
 
     return (
         <CButton color="success" shape="square" size="m" onClick={onClick}>
-            {label || '추가하기'}
+            {label || '프로그램 추가하기'}
         </CButton>
     );
 };

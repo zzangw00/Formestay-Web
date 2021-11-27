@@ -543,6 +543,7 @@ const Enterprise = ({ match }) => {
             </CCard>
             <BottomButtons
                 onBackClick={onBackButtonClick}
+                onPostClick={onBackButtonClick}
                 onPatchClick={onPatchButtonClick}
                 onDeleteClick={onDeleteButtonClick}
                 patchLabel={isEditing ? '수정완료' : '수정하기'}

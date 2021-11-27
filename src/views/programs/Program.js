@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { CCard, CCardBody, CCol, CDataTable, CFormGroup } from '@coreui/react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { CCard, CCardBody, CCol, CDataTable, CFormGroup, CInput, CLabel } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
 import { useHistory } from 'react-router-dom';
@@ -8,7 +8,37 @@ import BottomButtons from '../component/Button';
 import tagStyles from '../../scss/tag.scss';
 import { handleFirebaseUpload } from '../../utils/firebase/uploadFirebase';
 import { WithContext as ReactTags } from 'react-tag-input';
+import { Editor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import styled from 'styled-components';
+import { EditorState, convertToRaw, ContentState } from 'draft-js';
+import htmlToDraft from 'html-to-draftjs';
+import draftToHtml from 'draftjs-to-html';
 
+const MyBlock = styled.div`
+    .wrapper-class {
+        width: 50%;
+        margin: 0 auto;
+        margin-bottom: 4rem;
+    }
+    .editor {
+        height: 500px !important;
+        border: 1px solid #f1f1f1 !important;
+        padding: 5px !important;
+        border-radius: 2px !important;
+    }
+`;
+
+const IntroduceContent = styled.div`
+    position: relative;
+    border: 0.0625rem solid #d7e2eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    padding: 1.5rem;
+    width: 50%;
+    margin: 0 auto;
+    margin-bottom: 4rem;
+`;
 const Program = ({ match }) => {
     const history = useHistory();
     const [programId] = useState(match.params.programId);
@@ -18,8 +48,8 @@ const Program = ({ match }) => {
     const [thumbnailURL, setThumbnailURL] = useState('');
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
-    const [programInfo, setProgramInfo] = useState('');
-    const [mealInfo, setMealInfo] = useState('');
+    const [programInfo, setProgramInfo] = useState(EditorState.createEmpty());
+    const [mealInfo, setMealInfo] = useState(EditorState.createEmpty());
     const [createdAt, setCreatedAt] = useState('');
     const [file, setFile] = useState(null);
     const [enterpriseId, setEnterpriseId] = useState(null);
@@ -41,7 +71,6 @@ const Program = ({ match }) => {
                     history.push(`/enterprises/${enterpriseId}`);
                     return;
                 }
-
                 let tempArr = [];
                 let tagArr = [];
                 let priceArr = [];
@@ -52,8 +81,6 @@ const Program = ({ match }) => {
                 setThumbnailURL(program1.programResult[0].thumbnailURL);
                 setCheckIn(program1.programResult[0].checkIn);
                 setCheckOut(program1.programResult[0].checkOut);
-                setProgramInfo(program1.programResult[0].programInfo);
-                setMealInfo(program1.programResult[0].mealInfo);
                 setDescription(program1.programResult[0].description);
                 setCreatedAt(program1.programResult[0].createdAt);
                 tempArr = program1.programResult[0].tag.split('|');
@@ -84,6 +111,33 @@ const Program = ({ match }) => {
                 } else {
                     setThumbnailURL(program1.programResult[0].thumbnailURL);
                 }
+                const blocksFromHtml = htmlToDraft(program1.programResult[0].programInfo);
+                if (blocksFromHtml) {
+                    const { contentBlocks, entityMap } = blocksFromHtml;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setProgramInfo(editorState);
+                }
+
+                const blocksFromHtmlMeal = htmlToDraft(program1.programResult[0].mealInfo);
+                if (blocksFromHtmlMeal) {
+                    const { contentBlocks, entityMap } = blocksFromHtmlMeal;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setMealInfo(editorState);
+                }
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -93,7 +147,6 @@ const Program = ({ match }) => {
 
         getProgram().then();
     }, []);
-
     // 프로그램 수정 API 요청
     async function patchProgram(parameters) {
         try {
@@ -130,7 +183,7 @@ const Program = ({ match }) => {
             }
 
             alert('프로그램 삭제에 성공하였습니다.');
-            history.push('/enterprise');
+            history.push(`/enterprises/${enterpriseId}`);
         } catch (error) {
             console.log(error);
             alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -151,6 +204,7 @@ const Program = ({ match }) => {
             theFile.name,
             event.target.files[0],
         );
+        console.log(firebaseURL);
         setThumbnailURL(firebaseURL);
     }, []);
 
@@ -190,6 +244,18 @@ const Program = ({ match }) => {
             patchProgramStatus(programId).then(() => {});
         }
     }
+    function onChangecheckOut(e) {
+        setCheckOut(e.target.value);
+    }
+    function onChangecheckIn(e) {
+        setCheckIn(e.target.value);
+    }
+    function onProgramInfoChange(e) {
+        setProgramInfo(e);
+    }
+    function onMealInfoChange(e) {
+        setMealInfo(e);
+    }
 
     // 프로그램 수정 버튼 onClick
     function onPatchButtonClick() {
@@ -199,6 +265,9 @@ const Program = ({ match }) => {
             tags += '|';
         }
         tags = tags.substring(0, tags.length - 1);
+
+        const programInfoToHtml = draftToHtml(convertToRaw(programInfo.getCurrentContent()));
+        const mealInfoToHtml = draftToHtml(convertToRaw(mealInfo.getCurrentContent()));
         if (!isEditing) {
             setIsEditing(true);
             return;
@@ -223,12 +292,18 @@ const Program = ({ match }) => {
             alert('체크아웃 시간을 입력해주세요.');
             return;
         }
-        if (!isEmpty(programInfo.trim())) {
+        if (isEmpty(programInfoToHtml)) {
             alert('프로그램 정보를 입력해주세요.');
             return;
         }
-        if (!isEmpty(mealInfo.trim())) {
+        console.log(programInfo);
+        if (isEmpty(mealInfoToHtml)) {
             alert('식단 정보를 입력해주세요.');
+            return;
+        }
+
+        if (isEmpty(thumbnailURL.trim())) {
+            alert('이미지를 넣어 주세요.');
             return;
         }
         if (window.confirm('수정하시겠습니까?')) {
@@ -238,12 +313,17 @@ const Program = ({ match }) => {
                 tag: tags.trim(),
                 checkIn: checkIn.trim(),
                 checkOut: checkOut.trim(),
-                programInfo: programInfo.trim(),
-                mealInfo: mealInfo.trim(),
+                programInfo: programInfoToHtml,
+                mealInfo: mealInfoToHtml,
+                thumbnailURL: thumbnailURL.trim(),
             };
             patchProgram(parameters).then();
         }
     }
+
+    const editorToHtml = (e) => {
+        return draftToHtml(convertToRaw(e.getCurrentContent()));
+    };
 
     return (
         <CCol>
@@ -307,24 +387,35 @@ const Program = ({ match }) => {
                                 </div>
                             </CFormGroup>
                         )}
-                        <TextCell
-                            label="가격 정보"
-                            placeholder="가격 정보를 입력 해주세요"
-                            value={showRoomPrice}
-                            onChange={isEditing ? (e) => setRoomPrice(e.target.value) : null}
-                        />
+                        <div style={{ float: 'right', marginTop: '3px' }}>
+                            <button>추가</button>
+                            <button>수정</button>
+                        </div>
+                        <CFormGroup row>
+                            <CCol md="2" align="right">
+                                <CLabel htmlFor="text-input">가격 정보</CLabel>
+                            </CCol>
+                            <CCol>
+                                <div className="app" style={{ marginLeft: '4px' }}>
+                                    <CInput
+                                        placeholder="가격 정보를 입력 해주세요"
+                                        value={showRoomPrice}
+                                        disabled
+                                    />
+                                </div>
+                            </CCol>
+                        </CFormGroup>
                         {isEditing ? (
                             <CFormGroup row>
                                 <CCol md="2" align="right">
                                     <label name="tag">체크인 시간</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
-                                    <input type="time" id="checkInInput" placeholder={checkIn} />
-                                    {/*<TimeInput*/}
-                                    {/*    value={checkIn}*/}
-                                    {/*    eachInputDropdown*/}
-                                    {/*    onChange={(dateString) => setCheckIn(dateString)}*/}
-                                    {/*/>*/}
+                                    <input
+                                        type="time"
+                                        id="checkInInput"
+                                        onChange={onChangecheckIn}
+                                    />
                                 </div>
                             </CFormGroup>
                         ) : (
@@ -341,12 +432,11 @@ const Program = ({ match }) => {
                                     <label name="tag">체크아웃 시간</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
-                                    <input type="time" id="checkOutInput" placeholder={checkOut} />
-                                    {/*<TimeInput*/}
-                                    {/*    value={checkOut}*/}
-                                    {/*    eachInputDropdown*/}
-                                    {/*    onChange={(dateString) => setCheckOut(dateString)}*/}
-                                    {/*/>*/}
+                                    <input
+                                        type="time"
+                                        id="checkOutInput"
+                                        onChange={onChangecheckOut}
+                                    />
                                 </div>
                             </CFormGroup>
                         ) : (
@@ -357,18 +447,108 @@ const Program = ({ match }) => {
                                 onChange={isEditing ? (e) => setCheckOut(e.target.value) : null}
                             />
                         )}
-                        <TextCell
-                            label="프로그램 정보"
-                            placeholder="프로그램 정보를 입력해주세요"
-                            value={programInfo}
-                            onChange={isEditing ? (e) => setProgramInfo(e.target.value) : null}
-                        />
-                        <TextCell
-                            label="식단 정보"
-                            placeholder="식단 정보를 입력해주세요"
-                            value={mealInfo}
-                            onChange={isEditing ? (e) => setMealInfo(e.target.value) : null}
-                        />
+                        {isEditing ? (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="tag">프로그램 정보</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '15px' }}>
+                                    <MyBlock>
+                                        <Editor
+                                            // 에디터와 툴바 모두에 적용되는 클래스
+                                            wrapperClassName="wrapper-class"
+                                            // 에디터 주변에 적용된 클래스
+                                            editorClassName="editor"
+                                            // 툴바 주위에 적용된 클래스
+                                            toolbarClassName="toolbar-class"
+                                            // 툴바 설정
+                                            toolbar={{
+                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
+                                                list: { inDropdown: true },
+                                                textAlign: { inDropdown: true },
+                                                link: { inDropdown: true },
+                                                history: { inDropdown: false },
+                                            }}
+                                            placeholder="내용을 작성해주세요."
+                                            // 한국어 설정
+                                            localization={{
+                                                locale: 'ko',
+                                            }}
+                                            // 초기값 설정
+                                            editorState={programInfo}
+                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
+                                            onEditorStateChange={onProgramInfoChange}
+                                        />
+                                    </MyBlock>
+                                </div>
+                            </CFormGroup>
+                        ) : (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="tag">프로그램 정보</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '15px' }}>
+                                    <MyBlock>
+                                        <IntroduceContent
+                                            dangerouslySetInnerHTML={{
+                                                __html: editorToHtml(programInfo),
+                                            }}
+                                        />
+                                    </MyBlock>
+                                </div>
+                            </CFormGroup>
+                        )}
+                        {isEditing ? (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="tag">식단 정보</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '15px' }}>
+                                    <MyBlock>
+                                        <Editor
+                                            // 에디터와 툴바 모두에 적용되는 클래스
+                                            wrapperClassName="wrapper-class"
+                                            // 에디터 주변에 적용된 클래스
+                                            editorClassName="editor"
+                                            // 툴바 주위에 적용된 클래스
+                                            toolbarClassName="toolbar-class"
+                                            // 툴바 설정
+                                            toolbar={{
+                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
+                                                list: { inDropdown: true },
+                                                textAlign: { inDropdown: true },
+                                                link: { inDropdown: true },
+                                                history: { inDropdown: false },
+                                            }}
+                                            placeholder="내용을 작성해주세요."
+                                            // 한국어 설정
+                                            localization={{
+                                                locale: 'ko',
+                                            }}
+                                            // 초기값 설정
+                                            editorState={mealInfo}
+                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
+                                            onEditorStateChange={onMealInfoChange}
+                                        />
+                                    </MyBlock>
+                                </div>
+                            </CFormGroup>
+                        ) : (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="tag">식단 정보</label>
+                                </CCol>
+                                <div className="app" style={{ marginLeft: '15px' }}>
+                                    <MyBlock>
+                                        <IntroduceContent
+                                            dangerouslySetInnerHTML={{
+                                                __html: editorToHtml(mealInfo),
+                                            }}
+                                        />
+                                    </MyBlock>
+                                </div>
+                            </CFormGroup>
+                        )}
                         <TextCell label="등록일" value={createdAt} />
                         {isEditing ? (
                             <CFormGroup row>
