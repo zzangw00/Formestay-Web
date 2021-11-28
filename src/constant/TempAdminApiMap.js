@@ -22,11 +22,15 @@ export const EndPoint = {
 
     PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
     PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,
-
     POST_ENTERPRISE: `${API}/enterprise`,
 
     PATCH_PROGRAM_STATUS: `${API}/program/:programId/status`,
     PATCH_PROGRAM: `${API}/program/:programId`,
+
+    POST_ROOMPRICE: `${API}/program/price`,
+    GET_ROOMPRICE: `${API}/program/programRoomPrice/:programRoomPriceId`,
+    PATCH_ROOMPRICE: `${API}/program/programRoomPrice/:programRoomPriceId`,
+    PATCH_ROOMPRICE_STATUS: `${API}/programRoomPrice/:programRoomPriceId/status`,
 };
 
 const TempAdminApiMap = {
@@ -38,12 +42,14 @@ const TempAdminApiMap = {
         [EndPoint.GET_AUTO_LOGIN]: {},
         [EndPoint.GET_PROGRAMS]: {},
         [EndPoint.GET_PROGRAM]: {},
+        [EndPoint.GET_ROOMPRICE]: {},
     },
     post: {
         [EndPoint.POST_ADMIN_LOGIN]: {},
         [EndPoint.POST_USER]: {},
         [EndPoint.POST_ADMIN]: {},
         [EndPoint.POST_ENTERPRISE]: {},
+        [EndPoint.POST_ROOMPRICE]: {},
     },
     patch: {
         [EndPoint.PATCH_USER]: {},
@@ -52,6 +58,8 @@ const TempAdminApiMap = {
         [EndPoint.PATCH_ENTERPRISE_STATUS]: {},
         [EndPoint.PATCH_PROGRAM_STATUS]: {},
         [EndPoint.PATCH_PROGRAM]: {},
+        [EndPoint.PATCH_ROOMPRICE]: {},
+        [EndPoint.PATCH_ROOMPRICE_STATUS]: {},
     },
     put: {},
     delete: {},

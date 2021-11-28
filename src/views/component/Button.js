@@ -34,6 +34,17 @@ const PostButton = (props) => {
     );
 };
 
+// 가격 추가하기 버튼
+const RoomPostButton = (props) => {
+    const { label, onClick } = props;
+
+    return (
+        <CButton color="success" shape="square" size="m" onClick={onClick}>
+            {label || '추가하기'}
+        </CButton>
+    );
+};
+
 // 수정하기 버튼
 const PatchButton = (props) => {
     const { label, onClick } = props;
@@ -67,7 +78,9 @@ const BottomButtons = (props) => {
         postLabel,
         patchLabel,
         deleteLabel,
+        RoomPostLabel,
         onCloseClick,
+        onRoomPostClick,
     } = props;
 
     return (
@@ -87,6 +100,10 @@ const BottomButtons = (props) => {
                 <p />
             )}
             <CCol align="right">
+                {onRoomPostClick && (
+                    <RoomPostButton label={RoomPostLabel} onClick={onRoomPostClick} />
+                )}
+                &nbsp;&nbsp;
                 {onPostClick && <PostButton label={postLabel} onClick={onPostClick} />}
                 &nbsp;&nbsp;
                 {onPatchClick && <PatchButton label={patchLabel} onClick={onPatchClick} />}

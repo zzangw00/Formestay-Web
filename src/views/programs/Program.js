@@ -14,10 +14,13 @@ import styled from 'styled-components';
 import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import htmlToDraft from 'html-to-draftjs';
 import draftToHtml from 'draftjs-to-html';
+import Modal from 'react-modal';
+import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
+import { itemsPerPage } from '../../constant/Constants';
 
 const MyBlock = styled.div`
     .wrapper-class {
-        width: 50%;
+        width: 100%;
         margin: 0 auto;
         margin-bottom: 4rem;
     }
@@ -39,6 +42,18 @@ const IntroduceContent = styled.div`
     margin: 0 auto;
     margin-bottom: 4rem;
 `;
+const customStyles = {
+    content: {
+        width: '700px',
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+    },
+};
+
 const Program = ({ match }) => {
     const history = useHistory();
     const [programId] = useState(match.params.programId);
@@ -54,8 +69,45 @@ const Program = ({ match }) => {
     const [file, setFile] = useState(null);
     const [enterpriseId, setEnterpriseId] = useState(null);
     const [roomPrice, setRoomPrice] = useState([]);
+    const [inRoomPrice, setInRoomPrice] = useState([]);
     const [showRoomPrice, setShowRoomPrice] = useState([]);
+    const [roomPriceInfo, setRoomPriceInfo] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [isEditingP, setIsEditingP] = useState(false);
+    const [modalIsOpen, setIsOpen] = useState(false);
+    const [modalOneIsOpen, setModalOneIsOpen] = useState(false);
+    const [modalTwoIsOpen, setModalTwoIsOpen] = useState(false);
+    const [person, setPerson] = useState(null);
+    const [price, setPrice] = useState(null);
+    const [programRoomPriceId, setProgramRoomPriceId] = useState(false);
+
+    function openModal() {
+        setIsOpen(true);
+    }
+
+    function openModalOne() {
+        setModalOneIsOpen(true);
+    }
+
+    function openModalTwo(item) {
+        setModalTwoIsOpen(true);
+        setProgramRoomPriceId(item.programRoomPriceId);
+        getRoomPrice(item.programRoomPriceId);
+    }
+
+    function closeModal() {
+        setIsOpen(false);
+        history.go(0);
+    }
+    function closeModalOne() {
+        setModalOneIsOpen(false);
+        history.go(0);
+    }
+
+    function closeModalTwo() {
+        setModalTwoIsOpen(false);
+    }
+
     // 프로그램 상세 조회 API 요청
     useEffect(() => {
         const getProgram = async () => {
@@ -90,6 +142,11 @@ const Program = ({ match }) => {
                         program1.programRoomResult[i].price,
                     ]);
                 }
+                priceArr.sort((a, b) => {
+                    if (a[0] === b[0]) return a[1] - b[1];
+                    else return a[0] - b[0];
+                });
+                setInRoomPrice(program1.programRoomResult);
                 setRoomPrice(priceArr);
                 let showPriceArr = [];
                 let tempString = '';
@@ -168,7 +225,7 @@ const Program = ({ match }) => {
         }
     }
 
-    // 프로램 삭제 API 요청
+    // 프로그램 삭제 API 요청
     async function patchProgramStatus(programId) {
         try {
             const { data: res } = await TempAdminApi.request({
@@ -190,6 +247,136 @@ const Program = ({ match }) => {
         }
     }
 
+    // 가격정보 추가 API 요청
+    async function postRoomPrice(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.POST,
+                url: EndPoint.POST_ROOMPRICE,
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('가격 정보 추가에 성공하였습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 가격정보 조회 API 요청
+    async function getRoomPrice(programRoomPriceId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.GET,
+                url: EndPoint.GET_ROOMPRICE,
+                path: { programRoomPriceId: programRoomPriceId },
+            });
+
+            if (!res?.isSuccess) {
+                if (res?.code === 2002) {
+                    history.go(0);
+                } else {
+                    alert(res.message);
+                }
+                return;
+            }
+            const programRoomPrice = res.result;
+            setPrice(programRoomPrice[0].price);
+            setPerson(programRoomPrice[0].inRoom);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 가격정보 수정 API 요청
+    async function patchRoomPrice(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_ROOMPRICE,
+                path: { programRoomPriceId: programRoomPriceId },
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('가격 정보 수정에 성공하였습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 가격정보 삭제 API 요청
+    async function patchProgramRoomPriceStatus(programRoomPriceId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_ROOMPRICE_STATUS,
+                path: { programRoomPriceId: programRoomPriceId },
+                data: { status: 'INACTIVE' },
+            });
+            if (!res.isSuccess) {
+                alert(res.message);
+                return;
+            }
+
+            alert('가격 정보 삭제에 성공하였습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+    // 가격정보 추가 버튼 onClick
+    function onPostRoomButtonClick() {
+        if (isEmpty(person)) {
+            alert('인수를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(price)) {
+            alert('가격을 입력해주세요.');
+            return;
+        }
+        if (window.confirm('추가하시겠습니까?')) {
+            const parameters = {
+                programId: programId,
+                inRoom: person,
+                price: price,
+            };
+            postRoomPrice(parameters).then();
+        }
+    }
+
+    // 가격정보 수정 버튼 onClick
+    function onPatchRoomButtonClick() {
+        if (!isEditingP) {
+            setIsEditingP(true);
+            return;
+        }
+        if (isEmpty(person)) {
+            alert('인수를 입력해주세요.');
+            return;
+        }
+        if (isEmpty(price)) {
+            alert('가격을 입력해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                inRoom: person,
+                price: price,
+            };
+            patchRoomPrice(parameters).then();
+        }
+    }
     const onFileChange = useCallback(async (event) => {
         const previewImage = document.getElementById('thumbnailImg');
         const theFile = event.target.files[0];
@@ -244,6 +431,13 @@ const Program = ({ match }) => {
             patchProgramStatus(programId).then(() => {});
         }
     }
+
+    // 가격정보 삭제 버튼 onClick
+    function onDeleteRoomPriceButtonClick() {
+        if (window.confirm('정말로 삭제하시겠습니까?')) {
+            patchProgramRoomPriceStatus(programRoomPriceId).then(() => {});
+        }
+    }
     function onChangecheckOut(e) {
         setCheckOut(e.target.value);
     }
@@ -296,7 +490,6 @@ const Program = ({ match }) => {
             alert('프로그램 정보를 입력해주세요.');
             return;
         }
-        console.log(programInfo);
         if (isEmpty(mealInfoToHtml)) {
             alert('식단 정보를 입력해주세요.');
             return;
@@ -324,6 +517,22 @@ const Program = ({ match }) => {
     const editorToHtml = (e) => {
         return draftToHtml(convertToRaw(e.getCurrentContent()));
     };
+
+    // 테이블 속성 - fields
+    const tableFields = [
+        {
+            key: 'inRoom',
+            label: '인실',
+            filter: true,
+            sorter: true,
+        },
+        {
+            key: 'price',
+            label: '가격',
+            filter: true,
+            sorter: true,
+        },
+    ];
 
     return (
         <CCol>
@@ -388,15 +597,97 @@ const Program = ({ match }) => {
                             </CFormGroup>
                         )}
                         <div style={{ float: 'right', marginTop: '3px' }}>
-                            <button>추가</button>
-                            <button>수정</button>
+                            <button onClick={openModal}>추가</button>
+                            <Modal
+                                isOpen={modalIsOpen}
+                                onRequestClose={closeModal}
+                                // classNames={{
+                                //     overlay: 'customOverlay',
+                                //     modal: 'customModal',
+                                // }}
+                                style={customStyles}
+                            >
+                                <div className="form-group">
+                                    <TextCell
+                                        label="인실"
+                                        placeholder="인실을 입력해주세요"
+                                        value={person}
+                                        onChange={(e) => setPerson(e.target.value)}
+                                    />
+                                    <TextCell
+                                        label="가격"
+                                        placeholder="가격을 입력해주세요"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                    />
+                                    <BottomButtons
+                                        onRoomPostClick={onPostRoomButtonClick}
+                                        onCloseClick={closeModal}
+                                    />
+                                </div>
+                            </Modal>
                         </div>
+                        <div style={{ float: 'right', marginTop: '3px' }}>
+                            <button onClick={openModalOne}>수정</button>
+                            <Modal
+                                isOpen={modalOneIsOpen}
+                                onRequestClose={closeModalOne}
+                                // classNames={{
+                                //     overlay: 'customOverlay',
+                                //     modal: 'customModal',
+                                // }}
+                                style={customStyles}
+                            >
+                                <CDataTable
+                                    items={inRoomPrice}
+                                    fields={tableFields}
+                                    scopedSlots={tableScopedSlots}
+                                    hover
+                                    striped
+                                    sorter
+                                    onRowClick={openModalTwo}
+                                    columnFilter
+                                    pagination={tablePagination}
+                                    itemsPerPage={itemsPerPage}
+                                />
+                                <BottomButtons onCloseClick={closeModalOne} />
+                            </Modal>
+                            <Modal
+                                isOpen={modalTwoIsOpen}
+                                onRequestClose={closeModalTwo}
+                                // classNames={{
+                                //     overlay: 'customOverlay',
+                                //     modal: 'customModal',
+                                // }}
+                                style={customStyles}
+                            >
+                                <TextCell
+                                    label="인실"
+                                    placeholder="인실을 입력해주세요"
+                                    value={person}
+                                    onChange={isEditingP ? (e) => setPerson(e.target.value) : null}
+                                />
+                                <TextCell
+                                    label="가격"
+                                    placeholder="가격을 입력해주세요"
+                                    value={price}
+                                    onChange={isEditingP ? (e) => setPrice(e.target.value) : null}
+                                />
+                                <BottomButtons
+                                    onCloseClick={closeModalTwo}
+                                    onPatchClick={onPatchRoomButtonClick}
+                                    onDeleteClick={onDeleteRoomPriceButtonClick}
+                                    patchLabel={isEditingP ? '수정완료' : '수정하기'}
+                                />
+                            </Modal>
+                        </div>
+
                         <CFormGroup row>
                             <CCol md="2" align="right">
                                 <CLabel htmlFor="text-input">가격 정보</CLabel>
                             </CCol>
                             <CCol>
-                                <div className="app" style={{ marginLeft: '4px' }}>
+                                <div className="app" style={{ marginLeft: '3px' }}>
                                     <CInput
                                         placeholder="가격 정보를 입력 해주세요"
                                         value={showRoomPrice}
@@ -483,20 +774,24 @@ const Program = ({ match }) => {
                                 </div>
                             </CFormGroup>
                         ) : (
-                            <CFormGroup row>
-                                <CCol md="2" align="right">
-                                    <label name="tag">프로그램 정보</label>
-                                </CCol>
-                                <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <IntroduceContent
-                                            dangerouslySetInnerHTML={{
-                                                __html: editorToHtml(programInfo),
-                                            }}
-                                        />
-                                    </MyBlock>
-                                </div>
-                            </CFormGroup>
+                            <TextCell
+                                label="프로그램 정보"
+                                placeholder="수정하기 버튼을 누른 후 내용을 확인 해주세요"
+                            />
+                            // <CFormGroup row>
+                            //     <CCol md="2" align="right">
+                            //         <label name="tag">프로그램 정보</label>
+                            //     </CCol>
+                            //     <div className="app" style={{ marginLeft: '15px' }}>
+                            //         <MyBlock>
+                            //             <IntroduceContent
+                            //                 dangerouslySetInnerHTML={{
+                            //                     __html: editorToHtml(programInfo),
+                            //                 }}
+                            //             />
+                            //         </MyBlock>
+                            //     </div>
+                            // </CFormGroup>
                         )}
                         {isEditing ? (
                             <CFormGroup row>
@@ -534,20 +829,24 @@ const Program = ({ match }) => {
                                 </div>
                             </CFormGroup>
                         ) : (
-                            <CFormGroup row>
-                                <CCol md="2" align="right">
-                                    <label name="tag">식단 정보</label>
-                                </CCol>
-                                <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <IntroduceContent
-                                            dangerouslySetInnerHTML={{
-                                                __html: editorToHtml(mealInfo),
-                                            }}
-                                        />
-                                    </MyBlock>
-                                </div>
-                            </CFormGroup>
+                            <TextCell
+                                label="식단 정보"
+                                placeholder="수정하기 버튼을 누른 후 내용을 확인 해주세요"
+                            />
+                            // <CFormGroup row>
+                            //     <CCol md="2" align="right">
+                            //         <label name="tag">식단 정보</label>
+                            //     </CCol>
+                            //     <div className="app" style={{ marginLeft: '15px' }}>
+                            //         <MyBlock>
+                            //             <IntroduceContent
+                            //                 dangerouslySetInnerHTML={{
+                            //                     __html: editorToHtml(mealInfo),
+                            //                 }}
+                            //             />
+                            //         </MyBlock>
+                            //     </div>
+                            // </CFormGroup>
                         )}
                         <TextCell label="등록일" value={createdAt} />
                         {isEditing ? (
