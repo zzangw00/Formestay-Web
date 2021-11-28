@@ -188,6 +188,11 @@ const Enterprise = ({ match }) => {
         history.push(`/enterprises`);
     }
 
+    // 프로그램 추가 버튼 onClick
+    function onPostProgramClick() {
+        history.push(`/enterprise/${enterpriseId}/add-program`);
+    }
+
     // 수정 버튼 onClick
     function onPatchButtonClick() {
         let tags = '';
@@ -543,7 +548,7 @@ const Enterprise = ({ match }) => {
             </CCard>
             <BottomButtons
                 onBackClick={onBackButtonClick}
-                onPostClick={onBackButtonClick}
+                onPostClick={onPostProgramClick}
                 onPatchClick={onPatchButtonClick}
                 onDeleteClick={onDeleteButtonClick}
                 patchLabel={isEditing ? '수정완료' : '수정하기'}

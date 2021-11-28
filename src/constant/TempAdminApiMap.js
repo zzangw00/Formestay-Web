@@ -31,6 +31,8 @@ export const EndPoint = {
     GET_ROOMPRICE: `${API}/program/programRoomPrice/:programRoomPriceId`,
     PATCH_ROOMPRICE: `${API}/program/programRoomPrice/:programRoomPriceId`,
     PATCH_ROOMPRICE_STATUS: `${API}/programRoomPrice/:programRoomPriceId/status`,
+
+    POST_PROGRAM: `${API}/enterprise/:enterpriseId/program`,
 };
 
 const TempAdminApiMap = {
@@ -50,6 +52,7 @@ const TempAdminApiMap = {
         [EndPoint.POST_ADMIN]: {},
         [EndPoint.POST_ENTERPRISE]: {},
         [EndPoint.POST_ROOMPRICE]: {},
+        [EndPoint.POST_PROGRAM]: {},
     },
     patch: {
         [EndPoint.PATCH_USER]: {},

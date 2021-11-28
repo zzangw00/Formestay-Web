@@ -596,7 +596,7 @@ const Program = ({ match }) => {
                                 </div>
                             </CFormGroup>
                         )}
-                        <div style={{ float: 'right', marginTop: '3px' }}>
+                        <div style={{ float: 'right', marginTop: '3px', marginRight: '10px' }}>
                             <button onClick={openModal}>추가</button>
                             <Modal
                                 isOpen={modalIsOpen}
@@ -627,7 +627,7 @@ const Program = ({ match }) => {
                                 </div>
                             </Modal>
                         </div>
-                        <div style={{ float: 'right', marginTop: '3px' }}>
+                        <div style={{ float: 'right', marginTop: '3px', marginRight: '3px' }}>
                             <button onClick={openModalOne}>수정</button>
                             <Modal
                                 isOpen={modalOneIsOpen}
@@ -687,7 +687,7 @@ const Program = ({ match }) => {
                                 <CLabel htmlFor="text-input">가격 정보</CLabel>
                             </CCol>
                             <CCol>
-                                <div className="app" style={{ marginLeft: '3px' }}>
+                                <div className="app" style={{ marginLeft: '6px' }}>
                                     <CInput
                                         placeholder="가격 정보를 입력 해주세요"
                                         value={showRoomPrice}

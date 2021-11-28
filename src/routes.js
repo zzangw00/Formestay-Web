@@ -13,6 +13,7 @@ const Enterprise = React.lazy(() => import('./views/enterprises/Enterprise'));
 const AddEnterprise = React.lazy(() => import('./views/enterprises/AddEnterprise'));
 
 const Program = React.lazy(() => import('./views/programs/Program'));
+const AddProgram = React.lazy(() => import('./views/programs/AddProgram'));
 
 const routes = [
     { path: '/users', exact: true, name: '회원 목록 조회', component: Users },
@@ -37,6 +38,13 @@ const routes = [
         exact: true,
         name: '프로그램 상세 조회',
         component: Program,
+    },
+
+    {
+        path: '/enterprise/:enterpriseId/add-program',
+        exact: true,
+        name: '프로그램 추가',
+        component: AddProgram,
     },
 ];
 
