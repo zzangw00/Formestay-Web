@@ -404,11 +404,11 @@ const Program = ({ match }) => {
 
     const handleAddition = useCallback(
         (oneTag) => {
-            // let jsonData = new Object()
-            // jsonData.id = tag.length + 1
-            // jsonData.text = oneTag
-            // let testTag = jsonData
-            setTag([...tag, oneTag]);
+            if (tag.length == 5) {
+                alert('태그는 5개 이상 입력하실 수 없습니다.');
+            } else {
+                setTag([...tag, oneTag]);
+            }
         },
         [tag],
     );
@@ -422,7 +422,14 @@ const Program = ({ match }) => {
 
     // 뒤로가기 버튼 onClick
     function onBackButtonClick() {
-        history.push(`/enterprises/${enterpriseId}`);
+        history.push(
+            `/enterprises/${
+                // 뒤로가기 버튼 onClick
+                function onBackButtonClick() {
+                    history.push(`/enterprises/${enterpriseId}`);
+                }
+            }`,
+        );
     }
 
     // 삭제 버튼 onClick
@@ -855,7 +862,12 @@ const Program = ({ match }) => {
                                     <label name="thumbnailImg">이미지</label>
                                 </CCol>
                                 <div style={{ marginLeft: '15px' }}>
-                                    <input type="file" accept="image/*" onChange={onFileChange} />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={onFileChange}
+                                        multiple
+                                    />
                                 </div>
                             </CFormGroup>
                         ) : (

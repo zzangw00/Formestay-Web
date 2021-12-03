@@ -12,6 +12,28 @@ const BackButton = (props) => {
     );
 };
 
+// 취소 버튼
+const CancleButton = (props) => {
+    const { label, onClick } = props;
+
+    return (
+        <CButton color="danger" shape="square" size="m" onClick={onClick}>
+            {label || '예약 취소'}
+        </CButton>
+    );
+};
+
+// 승인 버튼
+const RegistButton = (props) => {
+    const { label, onClick } = props;
+
+    return (
+        <CButton color="success" shape="square" size="m" onClick={onClick}>
+            {label || '예약 승인'}
+        </CButton>
+    );
+};
+
 // 닫기 버튼
 const CloseButton = (props) => {
     const { label, onClick } = props;
@@ -70,6 +92,8 @@ const DeleteButton = (props) => {
 // 하단 버튼 모듈
 const BottomButtons = (props) => {
     const {
+        onCancleClick,
+        onRegistClick,
         onBackClick,
         onPostClick,
         onPatchClick,
@@ -78,6 +102,8 @@ const BottomButtons = (props) => {
         postLabel,
         patchLabel,
         deleteLabel,
+        cancleLabel,
+        registLabel,
         RoomPostLabel,
         onCloseClick,
         onRoomPostClick,
@@ -103,6 +129,10 @@ const BottomButtons = (props) => {
                 {onRoomPostClick && (
                     <RoomPostButton label={RoomPostLabel} onClick={onRoomPostClick} />
                 )}
+                &nbsp;&nbsp;
+                {onRegistClick && <RegistButton label={registLabel} onClick={onRegistClick} />}
+                &nbsp;&nbsp;
+                {onCancleClick && <CancleButton label={cancleLabel} onClick={onCancleClick} />}
                 &nbsp;&nbsp;
                 {onPostClick && <PostButton label={postLabel} onClick={onPostClick} />}
                 &nbsp;&nbsp;

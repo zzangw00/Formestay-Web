@@ -33,6 +33,12 @@ export const EndPoint = {
     PATCH_ROOMPRICE_STATUS: `${API}/programRoomPrice/:programRoomPriceId/status`,
 
     POST_PROGRAM: `${API}/enterprise/:enterpriseId/program`,
+
+    GET_RESERVATIONS: `${API}/enterprise/:enterpriseId/reservations`,
+    GET_RESERVATION: `${API}/reservations/:reservationId`,
+
+    PATCH_RESERVATION_REGIST: `${API}/reservations/:reservationId/status`,
+    PATCH_RESERVATION_CANCLE: `${API}/reservations/:reservationId/status-out`,
 };
 
 const TempAdminApiMap = {
@@ -45,6 +51,8 @@ const TempAdminApiMap = {
         [EndPoint.GET_PROGRAMS]: {},
         [EndPoint.GET_PROGRAM]: {},
         [EndPoint.GET_ROOMPRICE]: {},
+        [EndPoint.GET_RESERVATIONS]: {},
+        [EndPoint.GET_RESERVATION]: {},
     },
     post: {
         [EndPoint.POST_ADMIN_LOGIN]: {},
@@ -63,6 +71,8 @@ const TempAdminApiMap = {
         [EndPoint.PATCH_PROGRAM]: {},
         [EndPoint.PATCH_ROOMPRICE]: {},
         [EndPoint.PATCH_ROOMPRICE_STATUS]: {},
+        [EndPoint.PATCH_RESERVATION_REGIST]: {},
+        [EndPoint.PATCH_RESERVATION_CANCLE]: {},
     },
     put: {},
     delete: {},

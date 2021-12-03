@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CCard, CCardBody, CCol, CDataTable, CFormGroup } from '@coreui/react';
+import { CCard, CCardBody, CCol, CDataTable, CFormGroup, CPagination } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
 import { useHistory } from 'react-router-dom';
@@ -17,20 +17,23 @@ import { firebaseConfig } from '../../utils/firebase/configFirebase';
 import { handleFirebaseUpload } from '../../utils/firebase/uploadFirebase';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
-// import TimeInput from 'react-time-picker-input/dist/components/TimeInput';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
 
-// const customStyles = {
-//     content: {
-//         width: '700px',
-//         top: '50%',
-//         left: '50%',
-//         right: 'auto',
-//         bottom: 'auto',
-//         marginRight: '-50%',
-//         transform: 'translate(-50%, -50%)',
-//     },
-// };
-
+const customStyles = {
+    content: {
+        width: '700px',
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        position: 'fixed',
+    },
+};
 const Enterprise = ({ match }) => {
     const history = useHistory();
     const [enterpriseId] = useState(match.params.enterpriseId);
@@ -47,20 +50,65 @@ const Enterprise = ({ match }) => {
     const [thumbnailURL, setThumbnailURL] = useState('');
     const [createdAt, setCreatedAt] = useState('');
     const [file, setFile] = useState(null);
-    // const [modalIsOpen, setIsOpen] = useState(false);
-    // function openModal(programId) {
-    //     setIsOpen(true);
-    //     setProgramId(programId);
-    // }
+    const [events, setEvents] = useState([]);
+    const [modalIsOpenOne, setIsOpenOne] = useState(false);
+    const [modalIsOpenTwo, setIsOpenTwo] = useState(false);
+    const [name, setName] = useState('');
+    const [programName, setProgramName] = useState('');
+    const [userId, setUserId] = useState(null);
+    const [programId, setProgramId] = useState(null);
+    const [phoneNumberR, setPhoneNumberR] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [price, setPrice] = useState(null);
+    const [reservationNumber, setReservationNumber] = useState('');
+    const [createdAtR, setCreatedAtR] = useState('');
+    const [status, setStatus] = useState('');
+    const [reservationId, setReservationId] = useState(null);
 
-    // function afterOpenModal() {
-    //     subtitle.style.color = '#f00';
-    // }
+    function manageReservation(reservationId, color) {
+        if (color == 'orange') {
+            openModalOne(reservationId);
+        } else {
+            openModalTwo(reservationId);
+        }
+    }
+    function openModalOne(reservationId) {
+        getReservation(reservationId);
+        setReservationId(reservationId);
+        setIsOpenOne(true);
+    }
+    function openModalTwo(reservationId) {
+        getReservation(reservationId);
+        setReservationId(reservationId);
+        setIsOpenTwo(true);
+    }
+    function closeModalOne() {
+        setIsOpenOne(false);
+    }
+    function closeModalTwo() {
+        setIsOpenTwo(false);
+    }
+    const events1 = [
+        {
+            id: 1,
+            title: 'event 1',
+            start: '2021-12-14T10:00:00',
+            end: '2021-12-14T12:00:00',
+            color: 'green',
+        },
+        {
+            id: 2,
+            title: 'event 2',
+            start: '2021-12-14T13:00:00',
+            end: '2021-12-14T18:00:00',
+            color: 'orange',
+        },
 
-    // function closeModal() {
-    //     setIsOpen(false);
-    //     history.go(0);
-    // }
+        { id: 3, title: 'event 3', start: '2021-12-17', end: '2021-12-20', color: 'green' },
+    ];
+    const [reservation, setReservation] = useState([]);
+
     // 업체 상세 조회 API 요청
     useEffect(() => {
         const getEnterprise = async () => {
@@ -165,6 +213,52 @@ const Enterprise = ({ match }) => {
         }
     }
 
+    // 예약 삭제 API 요청
+    async function cancleReservation(reservationId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_RESERVATION_CANCLE,
+                path: { reservationId: reservationId },
+                data: { status: 'INACTIVE' },
+            });
+
+            if (!res.isSuccess) {
+                alert(res.message);
+                return;
+            }
+
+            alert('예약이 취소 되었습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 예약 승인 API 요청
+    async function registReservation(reservationId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_RESERVATION_REGIST,
+                path: { reservationId: reservationId },
+                data: { status: 'ACTIVE' },
+            });
+
+            if (!res.isSuccess) {
+                alert(res.message);
+                return;
+            }
+
+            alert('예약이 승인 되었습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
     const onFileChange = useCallback(async (event) => {
         const previewImage = document.getElementById('thumbnailImg');
 
@@ -252,7 +346,95 @@ const Enterprise = ({ match }) => {
             patchEnterprise(parameters).then();
         }
     }
+    // 예약 상세 조회 API 요청
+    async function getReservation(reservationId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.GET,
+                url: EndPoint.GET_RESERVATION,
+                path: { reservationId: reservationId },
+            });
 
+            if (!res?.isSuccess) {
+                if (res?.code === 2002) {
+                    history.go(0);
+                } else {
+                    alert(res.message);
+                }
+                return;
+            }
+            const reservation = res.result;
+            setName(reservation[0].name);
+            setUserId(reservation[0].userId);
+            setProgramId(reservation[0].programId);
+            setPhoneNumberR(reservation[0].phoneNumber);
+            setStartDate(reservation[0].startDate);
+            setEndDate(reservation[0].endDate);
+            setPrice(reservation[0].price);
+            setReservationNumber(reservation[0].reservationNumber);
+            setCreatedAtR(reservation[0].createdAt);
+            setProgramName(reservation[0].programName);
+            if (reservation[0].status == 'ACTIVE') {
+                setStatus('예약 완료');
+            } else {
+                setStatus('대기중');
+            }
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    //예약 조회 API 요청
+    useEffect(() => {
+        const getReservations = async () => {
+            try {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_RESERVATIONS,
+                    path: { enterpriseId: enterpriseId },
+                });
+
+                if (!res?.isSuccess) {
+                    alert(res.message);
+                    history.push('/enterprises');
+                    return;
+                }
+                let tempArr = [];
+                let events = [];
+                setReservation(res.result);
+                const reservation = res.result;
+                tempArr = reservation;
+                let jsonData;
+                for (let i = 0; i < tempArr.length; i++) {
+                    let date = new Date(tempArr[i].endDate);
+                    date.setDate(date.getDate() + 1);
+                    var year = date.getFullYear();
+                    var month = ('0' + (1 + date.getMonth())).slice(-2);
+                    var day = ('0' + date.getDate()).slice(-2);
+                    let title = tempArr[i].programName + ', ' + tempArr[i].name;
+                    jsonData = new Object();
+                    jsonData.id = tempArr[i].reservationId;
+                    jsonData.title = title;
+                    jsonData.start = tempArr[i].startDate;
+                    jsonData.end = year + '-' + month + '-' + day;
+                    if (tempArr[i].status == 'ACTIVE') {
+                        jsonData.color = '#9418FF';
+                    } else {
+                        jsonData.color = 'orange';
+                    }
+                    jsonData.created = tempArr[i].createdAt;
+                    events.push(jsonData);
+                }
+                setEvents(events);
+            } catch (error) {
+                console.log(error);
+                alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+            }
+        };
+
+        getReservations().then();
+    }, []);
     //프로그램 리스트 조회 API 요청
     useEffect(() => {
         const getPrograms = async () => {
@@ -312,6 +494,19 @@ const Enterprise = ({ match }) => {
         }
     }
 
+    // 예약 삭제 버튼 onClick
+    function onCancleButtonClick() {
+        if (window.confirm('정말로 예약을 취소하시겠습니까?')) {
+            cancleReservation(reservationId).then(() => {});
+        }
+    }
+    // 예약 승인 버튼 onClick
+    function onRegistButtonClick() {
+        if (window.confirm('정말로 예약을 승인하시겠습니까?')) {
+            registReservation(reservationId).then(() => {});
+        }
+    }
+
     // 프로그램 삭제 버튼 onClick
     // function onDeleteProgramButtonClick() {
     //     if (window.confirm('정말로 삭제하시겠습니까?')) {
@@ -338,11 +533,15 @@ const Enterprise = ({ match }) => {
 
     const handleAddition = useCallback(
         (oneTag) => {
+            if (tag.length == 5) {
+                alert('태그는 5개 이상 입력하실 수 없습니다.');
+            } else {
+                setTag([...tag, oneTag]);
+            }
             // let jsonData = new Object()
             // jsonData.id = tag.length + 1
             // jsonData.text = oneTag
             // let testTag = jsonData
-            setTag([...tag, oneTag]);
         },
         [tag],
     );
@@ -529,6 +728,68 @@ const Enterprise = ({ match }) => {
                                 </div>
                             </CFormGroup>
                         )}
+                        {/* get backgroundColor(): string;
+    get borderColor(): string; */}
+
+                        <Modal
+                            isOpen={modalIsOpenOne}
+                            onRequestClose={closeModalOne}
+                            style={customStyles}
+                        >
+                            <div>
+                                <TextCell label="예약 고유번호" value={reservationId} />
+                                <TextCell label="예약자 이름" value={name} />
+                                <TextCell label="프로그램 이름" value={programName} />
+                                <TextCell label="예약자 연락처" value={phoneNumberR} />
+                                <TextCell label="체크인 날짜" value={startDate} />
+                                <TextCell label="체크아웃 날짜" value={endDate} />
+                                <TextCell label="가격" value={price} />
+                                <TextCell label="예약 번호" value={reservationNumber} />
+                                <TextCell label="예약 날짜" value={createdAtR} />
+                                <TextCell label="예약 상태" value={status} />
+                            </div>
+                            <BottomButtons
+                                onCloseClick={closeModalOne}
+                                onCancleClick={onCancleButtonClick}
+                                onRegistClick={onRegistButtonClick}
+                            />
+                        </Modal>
+
+                        <Modal
+                            isOpen={modalIsOpenTwo}
+                            onRequestClose={closeModalTwo}
+                            style={customStyles}
+                        >
+                            <div>
+                                <TextCell label="예약 고유번호" value={reservationId} />
+                                <TextCell label="예약자 이름" value={name} />
+                                <TextCell label="프로그램 이름" value={programName} />
+                                <TextCell label="예약자 연락처" value={phoneNumberR} />
+                                <TextCell label="체크인 날짜" value={startDate} />
+                                <TextCell label="체크아웃 날짜" value={endDate} />
+                                <TextCell label="가격" value={price} />
+                                <TextCell label="예약 번호" value={reservationNumber} />
+                                <TextCell label="예약 날짜" value={createdAtR} />
+                                <TextCell label="예약 상태" value={status} />
+                            </div>
+                            <BottomButtons
+                                onCloseClick={closeModalTwo}
+                                onCancleClick={onCancleButtonClick}
+                            />
+                        </Modal>
+
+                        <div className="App">
+                            <FullCalendar
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                initialView="dayGridMonth"
+                                events={events}
+                                nowIndicator
+                                // eventClick={(e) => alert(e.event.id)}
+                                eventClick={(e) =>
+                                    manageReservation(e.event.id, e.event.backgroundColor)
+                                }
+                            />
+                        </div>
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                             <CDataTable
                                 items={programs}
