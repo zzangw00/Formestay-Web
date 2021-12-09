@@ -19,6 +19,7 @@ export const EndPoint = {
 
     GET_PROGRAMS: `${API}/programs/:enterpriseId`,
     GET_PROGRAM: `${API}/program/:programId`,
+    GET_PROGRAMIMAGES: `${API}/program/:programId/images`,
 
     PATCH_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
     PATCH_ENTERPRISE_STATUS: `${API}/enterprises/:enterpriseId/status`,
@@ -39,6 +40,9 @@ export const EndPoint = {
 
     PATCH_RESERVATION_REGIST: `${API}/reservations/:reservationId/status`,
     PATCH_RESERVATION_CANCLE: `${API}/reservations/:reservationId/status-out`,
+
+    POST_PROGRAMIMAGE: `${API}/program/:programId/images`,
+    PATCH_PROGRAMIMAGE_STATUS: `${API}/programImage/:programImageId/status`,
 };
 
 const TempAdminApiMap = {
@@ -50,6 +54,7 @@ const TempAdminApiMap = {
         [EndPoint.GET_AUTO_LOGIN]: {},
         [EndPoint.GET_PROGRAMS]: {},
         [EndPoint.GET_PROGRAM]: {},
+        [EndPoint.GET_PROGRAMIMAGES]: {},
         [EndPoint.GET_ROOMPRICE]: {},
         [EndPoint.GET_RESERVATIONS]: {},
         [EndPoint.GET_RESERVATION]: {},
@@ -61,6 +66,7 @@ const TempAdminApiMap = {
         [EndPoint.POST_ENTERPRISE]: {},
         [EndPoint.POST_ROOMPRICE]: {},
         [EndPoint.POST_PROGRAM]: {},
+        [EndPoint.POST_PROGRAMIMAGE]: {},
     },
     patch: {
         [EndPoint.PATCH_USER]: {},
@@ -73,6 +79,7 @@ const TempAdminApiMap = {
         [EndPoint.PATCH_ROOMPRICE_STATUS]: {},
         [EndPoint.PATCH_RESERVATION_REGIST]: {},
         [EndPoint.PATCH_RESERVATION_CANCLE]: {},
+        [EndPoint.PATCH_PROGRAMIMAGE_STATUS]: {},
     },
     put: {},
     delete: {},

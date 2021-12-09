@@ -337,12 +337,13 @@ const AddProgram = ({ match }) => {
                             </CFormGroup>
                             <CFormGroup row>
                                 <CCol md="2" align="right">
-                                    <label name="thumbnailImg">이미지</label>
+                                    <label name="thumbnailImg">썸네일 이미지</label>
                                 </CCol>
                                 <div style={{ marginLeft: '15px' }}>
                                     <input type="file" accept="image/*" onChange={onFileChange} />
                                 </div>
                             </CFormGroup>
+                            <TextCell label="이미지" value="프로그램 수정하기를 통해 넣어주세요" />
                         </div>
                     </CCardBody>
                 </CCard>

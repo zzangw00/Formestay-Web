@@ -17,7 +17,8 @@ import draftToHtml from 'draftjs-to-html';
 import Modal from 'react-modal';
 import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
-
+import ImageGallery from 'react-image-gallery';
+import 'react-image-gallery/styles/css/image-gallery.css';
 const MyBlock = styled.div`
     .wrapper-class {
         width: 100%;
@@ -67,6 +68,7 @@ const Program = ({ match }) => {
     const [mealInfo, setMealInfo] = useState(EditorState.createEmpty());
     const [createdAt, setCreatedAt] = useState('');
     const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [enterpriseId, setEnterpriseId] = useState(null);
     const [roomPrice, setRoomPrice] = useState([]);
     const [inRoomPrice, setInRoomPrice] = useState([]);
@@ -74,12 +76,18 @@ const Program = ({ match }) => {
     const [roomPriceInfo, setRoomPriceInfo] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingP, setIsEditingP] = useState(false);
+    const [isEditingI, setIsEditingI] = useState(false);
     const [modalIsOpen, setIsOpen] = useState(false);
     const [modalOneIsOpen, setModalOneIsOpen] = useState(false);
     const [modalTwoIsOpen, setModalTwoIsOpen] = useState(false);
+    const [modalThreeIsOpen, setModalThreeIsOpen] = useState(false);
     const [person, setPerson] = useState(null);
     const [price, setPrice] = useState(null);
     const [programRoomPriceId, setProgramRoomPriceId] = useState(false);
+    const [myImage, setMyImage] = useState([]);
+    const [programImages, setProgramImages] = useState([]);
+    const [uploadProgramImages, setUploadProgramImages] = useState([]);
+    const [imageData, setImageData] = useState([]);
 
     function openModal() {
         setIsOpen(true);
@@ -94,6 +102,9 @@ const Program = ({ match }) => {
         setProgramRoomPriceId(item.programRoomPriceId);
         getRoomPrice(item.programRoomPriceId);
     }
+    function openModalThree() {
+        setModalThreeIsOpen(true);
+    }
 
     function closeModal() {
         setIsOpen(false);
@@ -106,6 +117,10 @@ const Program = ({ match }) => {
 
     function closeModalTwo() {
         setModalTwoIsOpen(false);
+    }
+
+    function closeModalThree() {
+        setModalThreeIsOpen(false);
     }
 
     // 프로그램 상세 조회 API 요청
@@ -204,6 +219,54 @@ const Program = ({ match }) => {
 
         getProgram().then();
     }, []);
+
+    //프로그램 이미지 조회 API 요청
+    useEffect(() => {
+        const getProgramImages = async () => {
+            try {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_PROGRAMIMAGES,
+                    path: { programId: programId },
+                });
+
+                if (!res?.isSuccess) {
+                    if (res?.code === 2002) {
+                        history.push('/enterprises');
+                    } else {
+                        alert(res.message);
+                    }
+                    return;
+                }
+                const temp = res.result;
+                const images = [];
+                if (!temp) {
+                    setProgramImages('');
+                } else {
+                    for (let i = 0; i < temp.length; i++) {
+                        images.push(temp[i].imageURL);
+                    }
+                }
+                setProgramImages(images);
+                let imageData = [];
+                let jsonData;
+                for (let i = 0; i < temp.length; i++) {
+                    jsonData = new Object();
+                    jsonData.original = temp[i].imageURL;
+                    jsonData.thumbnailURL = temp[i].imageURL;
+                    jsonData.originalAlt = temp[i].programImageId;
+                    imageData.push(jsonData);
+                }
+                setImageData(imageData);
+            } catch (error) {
+                console.log(error);
+                alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+            }
+        };
+
+        getProgramImages().then();
+    }, []);
+
     // 프로그램 수정 API 요청
     async function patchProgram(parameters) {
         try {
@@ -219,6 +282,32 @@ const Program = ({ match }) => {
             }
             alert('업체 수정에 성공하였습니다.');
             history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 프로그램 이미지 추가 API 요청
+    async function postProgramImages(parameters) {
+        try {
+            // console.log(parameters);
+            if (parameters.images.length !== 0) {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.POST,
+                    url: EndPoint.POST_PROGRAMIMAGE,
+                    path: { programId: programId },
+                    data: parameters,
+                });
+                if (!res?.isSuccess) {
+                    alert(res.message);
+                    return;
+                }
+                alert('이미지 추가에 성공하였습니다.');
+                history.go(0);
+            } else {
+                alert('이미지를 선택해주세요.');
+            }
         } catch (error) {
             console.log(error);
             alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
@@ -335,6 +424,27 @@ const Program = ({ match }) => {
             alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
         }
     }
+
+    // 이미지 삭제 API 요청
+    async function patchProgramImageStatus(programImageId) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_PROGRAMIMAGE_STATUS,
+                path: { programImageId: parseInt(programImageId) },
+            });
+            if (!res.isSuccess) {
+                alert(res.message);
+                return;
+            }
+
+            alert('이미지 삭제에 성공하였습니다.');
+            history.go(0);
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
     // 가격정보 추가 버튼 onClick
     function onPostRoomButtonClick() {
         if (isEmpty(person)) {
@@ -377,6 +487,24 @@ const Program = ({ match }) => {
             patchRoomPrice(parameters).then();
         }
     }
+
+    // 이미지 추가 버튼 onClick
+    function onPostImagesButtonClick() {
+        const subs = document.getElementById('images-upload');
+        subs.innerText = '추가 완료';
+        if (!isEditingI) {
+            setIsEditingI(true);
+            return;
+        }
+        if (window.confirm('프로그램 이미지를 추가 하시겠습니까?')) {
+            const parameters = {
+                images: uploadProgramImages,
+            };
+            setIsEditingI(false);
+            subs.innerText = '추가 하기';
+            postProgramImages(parameters).then();
+        }
+    }
     const onFileChange = useCallback(async (event) => {
         const previewImage = document.getElementById('thumbnailImg');
         const theFile = event.target.files[0];
@@ -391,8 +519,22 @@ const Program = ({ match }) => {
             theFile.name,
             event.target.files[0],
         );
-        console.log(firebaseURL);
         setThumbnailURL(firebaseURL);
+    }, []);
+
+    const onImageChange = useCallback(async (event) => {
+        const theFiles = event.target.files;
+        setFiles(event.target.files);
+        let urls = [];
+        for (let i = 0; i < theFiles.length; i++) {
+            let firebaseURL = await handleFirebaseUpload(
+                'programImages',
+                theFiles[i].name,
+                theFiles[i],
+            );
+            urls.push(firebaseURL);
+        }
+        setUploadProgramImages(urls);
     }, []);
 
     const handleDelete = useCallback(
@@ -422,20 +564,20 @@ const Program = ({ match }) => {
 
     // 뒤로가기 버튼 onClick
     function onBackButtonClick() {
-        history.push(
-            `/enterprises/${
-                // 뒤로가기 버튼 onClick
-                function onBackButtonClick() {
-                    history.push(`/enterprises/${enterpriseId}`);
-                }
-            }`,
-        );
+        history.push(`/enterprises/${enterpriseId}`);
     }
 
     // 삭제 버튼 onClick
     function onDeleteButtonClick() {
         if (window.confirm('정말로 삭제하시겠습니까?')) {
             patchProgramStatus(programId).then(() => {});
+        }
+    }
+
+    // 삭제 버튼 onClick
+    function onDeleteImageButtonClick(programImageId) {
+        if (window.confirm('정말로 삭제하시겠습니까?')) {
+            patchProgramImageStatus(programImageId).then(() => {});
         }
     }
 
@@ -456,6 +598,9 @@ const Program = ({ match }) => {
     }
     function onMealInfoChange(e) {
         setMealInfo(e);
+    }
+    function onClickImage(e) {
+        onDeleteImageButtonClick(e.target.alt);
     }
 
     // 프로그램 수정 버튼 onClick
@@ -541,6 +686,46 @@ const Program = ({ match }) => {
         },
     ];
 
+    const rendering = () => {
+        const result = [];
+        if (programImages.length == 0) {
+            result.push(
+                <img
+                    id="thumbnailImg"
+                    src={programImages}
+                    alt=""
+                    class="img-thumbnail"
+                    width="150px"
+                    height="150px"
+                ></img>,
+            );
+        } else {
+            for (let i = 0; i < programImages.length; i++) {
+                result.push(
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            margin: '10px',
+                        }}
+                        key={i}
+                    >
+                        <img
+                            id="thumbnailImg"
+                            src={programImages[i]}
+                            alt=""
+                            width="150px"
+                            height="150px"
+                            style={{ boxSizing: 'border-box' }}
+                        ></img>
+                    </div>,
+                );
+            }
+        }
+        return result;
+    };
+
     return (
         <CCol>
             <CCard>
@@ -555,6 +740,18 @@ const Program = ({ match }) => {
                                 width="300px"
                                 height="300px"
                             ></img>
+                        </div>
+                    </p>
+                    <p>
+                        <div
+                            class="text-center"
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            {rendering()}
                         </div>
                     </p>
                     <div>
@@ -859,13 +1056,52 @@ const Program = ({ match }) => {
                         {isEditing ? (
                             <CFormGroup row>
                                 <CCol md="2" align="right">
-                                    <label name="thumbnailImg">이미지</label>
+                                    <label name="thumbnailImg">썸네일 이미지</label>
+                                </CCol>
+                                <div style={{ marginLeft: '15px' }}>
+                                    <input type="file" accept="image/*" onChange={onFileChange} />
+                                </div>
+                            </CFormGroup>
+                        ) : (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="thumbnailImg">썸네일 이미지</label>
                                 </CCol>
                                 <div style={{ marginLeft: '15px' }}>
                                     <input
                                         type="file"
                                         accept="image/*"
                                         onChange={onFileChange}
+                                        disabled
+                                    />
+                                </div>
+                            </CFormGroup>
+                        )}
+                        <div style={{ float: 'right', marginTop: '3px', marginRight: '10px' }}>
+                            <button onClick={openModalThree}>삭제</button>
+                            <Modal
+                                isOpen={modalThreeIsOpen}
+                                onRequestClose={closeModalThree}
+                                style={customStyles}
+                            >
+                                <ImageGallery items={imageData} onClick={onClickImage} />
+                            </Modal>
+                        </div>
+                        <div style={{ float: 'right', marginTop: '3px', marginRight: '3px' }}>
+                            <button id="images-upload" onClick={onPostImagesButtonClick}>
+                                추가하기
+                            </button>
+                        </div>
+                        {isEditingI ? (
+                            <CFormGroup row>
+                                <CCol md="2" align="right">
+                                    <label name="images">이미지</label>
+                                </CCol>
+                                <div style={{ marginLeft: '24px' }}>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={onImageChange}
                                         multiple
                                     />
                                 </div>
@@ -873,9 +1109,9 @@ const Program = ({ match }) => {
                         ) : (
                             <CFormGroup row>
                                 <CCol md="2" align="right">
-                                    <label name="thumbnailImg">이미지</label>
+                                    <label name="images">이미지</label>
                                 </CCol>
-                                <div style={{ marginLeft: '15px' }}>
+                                <div style={{ marginLeft: '24px' }}>
                                     <input
                                         type="file"
                                         accept="image/*"

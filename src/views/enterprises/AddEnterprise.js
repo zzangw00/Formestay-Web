@@ -127,11 +127,15 @@ const AddEnterprise = () => {
 
     const handleAddition = useCallback(
         (oneTag) => {
+            if (tag.length == 5) {
+                alert('태그는 5개 이상 입력하실 수 없습니다.');
+            } else {
+                setTag([...tag, oneTag]);
+            }
             // let jsonData = new Object()
             // jsonData.id = tag.length + 1
             // jsonData.text = oneTag
             // let testTag = jsonData
-            setTag([...tag, oneTag]);
         },
         [tag],
     );
