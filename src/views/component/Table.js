@@ -3,12 +3,21 @@ import { Button } from 'reactstrap';
 import Moment from 'react-moment';
 import { SizePerPageDropDown } from 'react-bootstrap-table';
 import { itemsPerPage } from '../../constant/Constants';
-import { cellStatusBadge, cellSnsIdBadge } from './Badge';
+import { cellStatusBadge, cellSnsIdBadge, cellDeleteBadge } from './Badge';
 import { CButton } from '@coreui/react';
 
 // tableField - 상태
 export const tableStatusField = {
     key: 'status',
+    label: '상태',
+    _style: { width: '120px' },
+    filter: false,
+    sorter: true,
+};
+
+// tableField - 상태
+export const tableEnterpriseAndProgramStatusField = {
+    key: 'deleteStatus',
     label: '상태',
     _style: { width: '120px' },
     filter: false,
@@ -60,6 +69,15 @@ export function tableStatusScopedSlot(status) {
     );
 }
 
+// tableScopedSlot - 상태
+export function tableDeleteStatusScopedSlot(status) {
+    return (
+        <td className="py-2" style={{ fontSize: '18px' }}>
+            {cellDeleteBadge(status)}
+        </td>
+    );
+}
+
 // tableScopedSlot - 로그인 유형
 export function tableSnsIdScopedSlot(snsId) {
     return (
@@ -105,6 +123,7 @@ export function tableDeleteScopedSlot(onClick) {
 // tableScopedSlots - 기본값
 export const tableScopedSlots = {
     status: (item) => tableStatusScopedSlot(item.status),
+    deleteStatus: (item) => tableDeleteStatusScopedSlot(item.status),
     snsId: (item) => tableSnsIdScopedSlot(item.snsId),
 };
 

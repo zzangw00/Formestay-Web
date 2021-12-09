@@ -5,7 +5,11 @@ import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { itemsPerPage } from '../../constant/Constants';
 import { isEmpty } from '../../utils/common/commonFunction';
-import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
+import {
+    tablePagination,
+    tableScopedSlots,
+    tableEnterpriseAndProgramStatusField,
+} from '../component/Table';
 import BottomButtons from '../component/Button';
 
 const Enterprises = () => {
@@ -68,7 +72,7 @@ const Enterprises = () => {
             filter: true,
             sorter: true,
         },
-        tableStatusField,
+        tableEnterpriseAndProgramStatusField,
     ];
 
     // 테이블 셀 onClick

@@ -5,7 +5,12 @@ import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/co
 import { useHistory } from 'react-router-dom';
 import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
-import { tablePagination, tableScopedSlots, tableStatusField } from '../component/Table';
+import {
+    tablePagination,
+    tableScopedSlots,
+    tableStatusField,
+    tableEnterpriseAndProgramStatusField,
+} from '../component/Table';
 import { itemsPerPage } from '../../constant/Constants';
 import tagStyles from '../../scss/tag.scss';
 // import modalStyles from '../../scss/_custom.scss';
@@ -479,7 +484,7 @@ const Enterprise = ({ match }) => {
             filter: true,
             sorter: true,
         },
-        tableStatusField,
+        tableEnterpriseAndProgramStatusField,
     ];
 
     // 테이블 셀 onClick

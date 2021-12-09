@@ -27,6 +27,32 @@ function getStatusBadgeText(status) {
     }
 }
 
+function getDeleteBadgeColor(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return 'success';
+        case 'DEACTIVATE':
+            return 'secondary';
+        case 'INACTIVE':
+            return 'danger';
+        default:
+            return 'primary';
+    }
+}
+
+function getDeleteBadgeText(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return '활성';
+        case 'DEACTIVATE':
+            return '비활성';
+        case 'INACTIVE':
+            return '삭제';
+        default:
+            return '';
+    }
+}
+
 function getSnsIdBadgeColor(snsId) {
     switch (snsId) {
         case 0:
@@ -47,6 +73,10 @@ function getSnsIdBadgeText(snsId) {
 
 export function cellStatusBadge(status) {
     return <CBadge color={getStatusBadgeColor(status)}>{getStatusBadgeText(status)}</CBadge>;
+}
+
+export function cellDeleteBadge(status) {
+    return <CBadge color={getDeleteBadgeColor(status)}>{getDeleteBadgeText(status)}</CBadge>;
 }
 
 export function cellSnsIdBadge(snsId) {
