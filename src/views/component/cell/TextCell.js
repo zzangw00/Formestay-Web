@@ -19,7 +19,7 @@ const TextCell = props => {
 					onChange={onChange}
 				/>
 			</CCol>
-		</CFormGroup>
+    </CFormGroup>
 	)
 }
 
