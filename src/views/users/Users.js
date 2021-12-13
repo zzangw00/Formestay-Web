@@ -19,7 +19,7 @@ const Users = () => {
       try {
         const {data: res} = await TempAdminApi.request({
           method: HttpMethod.GET,
-          url: EndPoint.GET_USERS
+          url: EndPoint.GET_USERS,
         })
 
         if (!res?.isSuccess || isEmpty(res?.result)) {
