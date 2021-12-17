@@ -1,6 +1,6 @@
 ## 프로젝트 명
 
--   {프로젝트 명}
+-   포미스테이 웹 어드민
 
 ## 사용언어
 
@@ -32,18 +32,22 @@
 │   │   │   ├── expirySession.js                            # Key/Value 형식으로 세션에 get/set 할 수 있도록 모듈화
 │   │   │   ├── sessionManager.js                           # 자동로그인, get JWT 등 세션을 사용하는 함수 정의
 │   ├── views
+│   │   ├── admin
+│   │   │   ├── AddAdmin.js                                 # 관리자 회원가입 화면
 │   │   ├── component                                       # 자주 사용되는 컴포턴트 관리
+│   │   ├── enterprises
+│   │   │   ├── AddEnterprise.js                            # 업체 추가 화면
+│   │   │   ├── Enterprise.js                               # 업체 상세 조회 화면
+│   │   │   ├── Enterprises.js                              # 업체 전체 조회 화면
 │   │   ├── pages
 │   │   │   ├── login                                       # 로그인 화면
 │   │   │   ├── page404, page500                            # 404, 500 에러 페이지
-│   │   ├── user
-│   │   │   ├── Users.js                                    # 사용자 목록 화면
-│   │   │   ├── User.js                                     # 사용자 상세조회 화면
-│   │   │   ├── AddUser.js                                  # 사용자 추가 화면
-│   │   ├── board
-│   │   │   ├── Board.js                                    # 게시물 목록 화면
-│   │   │   ├── Boards.js                                   # 게시물 상세조회 화면
-│   │   │   ├── AddBoard.js                                 # 게시물 추가 화면
+│   │   ├── programs
+│   │   │   ├── AddProgram.js                               # 프로그램 추가 화면
+│   │   │   ├── Program.js                                  # 프로그램 상세 조회 화면
+│   │   ├── users
+│   │   │   ├── User.js                                     # 유저 상세 조회 화면
+│   │   │   ├── Users.js                                    # 유저 전체 조회 화면
 │   ├── App.js
 │   ├── routes.js                                           # 페이지마다의 라우트 설정
 ├── .env.development                                        # 개발서버 URL을 등록 할 수 있는 환경변수 파일. npm start 사용 시 해당 파일이 자동 호출.
