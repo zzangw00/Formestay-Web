@@ -47,7 +47,7 @@ const TheHeader = () => {
     };
 
     return (
-        <CHeader withSubheader style={{ background: env === 'production' ? 'white' : 'green' }}>
+        <CHeader withSubheader style={{ background: env === 'production' ? 'white' : 'white'}}>
             <CToggler inHeader className="ml-md-3 d-lg-none" onClick={toggleSidebarMobile} />
             <CToggler inHeader className="ml-3 d-md-down-none" onClick={toggleSidebar} />
             <CHeaderBrand className="mx-auto d-lg-none" to="/">
@@ -55,8 +55,8 @@ const TheHeader = () => {
             </CHeaderBrand>
 
             <CHeaderNav className="d-md-down-none mr-auto">
-                <h1 style={{ color: 'white', zIndex: 8 }}>
-                    {env === 'production' ? '' : '테스트 페이지입니다.'}
+                <h1 style={{ color: '#9418FF', zIndex: 8 }}>
+                    {env === 'production' ? 'Formestay' : 'Formestay'}
                 </h1>
             </CHeaderNav>
 
