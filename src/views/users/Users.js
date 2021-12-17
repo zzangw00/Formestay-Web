@@ -4,7 +4,6 @@ import 'react-bootstrap-table/dist//react-bootstrap-table-all.min.css';
 import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { itemsPerPage } from '../../constant/Constants';
-import usersData from './UsersData';
 import { isEmpty } from '../../utils/common/commonFunction';
 import {
     tablePagination,
@@ -47,7 +46,6 @@ const Users = () => {
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
-                setUsers(usersData);
             }
         };
 
