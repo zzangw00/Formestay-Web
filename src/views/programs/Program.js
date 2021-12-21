@@ -726,6 +726,10 @@ const Program = ({ match }) => {
         return result;
     };
 
+    const changeDiet = useCallback(async () => {
+      console.log('hi')
+    }, [])
+
     return (
         <CCol>
             <CCard>
@@ -1003,6 +1007,7 @@ const Program = ({ match }) => {
                                     <label name="tag">식단 정보</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
+                                  <input type="date" onChange={changeDiet}/>
                                     <MyBlock>
                                         <Editor
                                             // 에디터와 툴바 모두에 적용되는 클래스
