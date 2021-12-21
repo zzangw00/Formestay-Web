@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import { sessionGet } from './expirySession';
 import { isEmpty } from '../common/commonFunction';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
-import usersData from '../../views/users/UsersData';
 
 export function checkLogin() {
     if (!isEmpty(sessionGet('jwt'))) {
