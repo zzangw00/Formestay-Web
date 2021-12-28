@@ -13,6 +13,7 @@ const AddAdmin = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [enterpriseId, setEnterpriseId] = useState(null);
 
     // 관리자 추가 API 요청
     async function postAdmin(parameters) {
@@ -28,7 +29,7 @@ const AddAdmin = () => {
                 return;
             }
 
-            alert('관리자 추가에 성공하였습니다.');
+            alert('관계자 추가에 성공하였습니다.');
             history.push('/users');
         } catch (error) {
             console.log(error);
@@ -66,7 +67,10 @@ const AddAdmin = () => {
             alert('전화번호 형식을 확인해주세요.');
             return;
         }
-
+        if (isEmpty(enterpriseId)) {
+            alert('업체 고유번호를 입력해주세요.');
+            return;
+        }
         if (window.confirm('추가하시겠습니까?')) {
             const parameters = {
                 email: email.trim(),
@@ -74,6 +78,7 @@ const AddAdmin = () => {
                 confirmPassword: confirmPassword,
                 nickname: nickname.trim(),
                 phoneNumber: phoneNumber.trim(),
+                enterpriseId: enterpriseId,
             };
             postAdmin(parameters).then();
         }
@@ -116,10 +121,16 @@ const AddAdmin = () => {
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
                         />
+                        <TextCell
+                            label="업체 고유번호"
+                            placeholder="업체 고유번호를 입력해주세요"
+                            value={enterpriseId}
+                            onChange={(e) => setEnterpriseId(e.target.value)}
+                        />
                     </div>
                 </CCardBody>
             </CCard>
-            <BottomButtons onPostClick={onPostButtonClick} />
+            <BottomButtons onAdminClick={onPostButtonClick} />
         </CCol>
     );
 };

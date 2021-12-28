@@ -15,6 +15,7 @@ import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import htmlToDraft from 'html-to-draftjs';
 import draftToHtml from 'draftjs-to-html';
 import styled from 'styled-components';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 const MyBlock = styled.div`
     .wrapper-class {

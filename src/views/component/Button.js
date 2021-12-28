@@ -23,6 +23,17 @@ const CancleButton = (props) => {
     );
 };
 
+// 관리자 추가 버튼
+const AdminButton = (props) => {
+    const { label, onClick } = props;
+
+    return (
+        <CButton color="success" shape="square" size="m" onClick={onClick}>
+            {label || '관리자 추가하기'}
+        </CButton>
+    );
+};
+
 // 승인 버튼
 const RegistButton = (props) => {
     const { label, onClick } = props;
@@ -92,6 +103,7 @@ const DeleteButton = (props) => {
 // 하단 버튼 모듈
 const BottomButtons = (props) => {
     const {
+        onAdminClick,
         onCancleClick,
         onRegistClick,
         onBackClick,
@@ -100,6 +112,7 @@ const BottomButtons = (props) => {
         onDeleteClick,
         backLabel,
         postLabel,
+        adminLabel,
         patchLabel,
         deleteLabel,
         cancleLabel,
@@ -135,6 +148,8 @@ const BottomButtons = (props) => {
                 {onCancleClick && <CancleButton label={cancleLabel} onClick={onCancleClick} />}
                 &nbsp;&nbsp;
                 {onPostClick && <PostButton label={postLabel} onClick={onPostClick} />}
+                &nbsp;&nbsp;
+                {onAdminClick && <AdminButton label={adminLabel} onClick={onAdminClick} />}
                 &nbsp;&nbsp;
                 {onPatchClick && <PatchButton label={patchLabel} onClick={onPatchClick} />}
                 &nbsp;&nbsp;
