@@ -29,7 +29,7 @@ const AdminButton = (props) => {
 
     return (
         <CButton color="success" shape="square" size="m" onClick={onClick}>
-            {label || '관리자 추가하기'}
+            {label || '추가하기'}
         </CButton>
     );
 };

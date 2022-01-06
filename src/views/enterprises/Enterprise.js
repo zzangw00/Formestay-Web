@@ -94,24 +94,6 @@ const Enterprise = ({ match }) => {
     function closeModalTwo() {
         setIsOpenTwo(false);
     }
-    const events1 = [
-        {
-            id: 1,
-            title: 'event 1',
-            start: '2021-12-14T10:00:00',
-            end: '2021-12-14T12:00:00',
-            color: 'green',
-        },
-        {
-            id: 2,
-            title: 'event 2',
-            start: '2021-12-14T13:00:00',
-            end: '2021-12-14T18:00:00',
-            color: 'orange',
-        },
-
-        { id: 3, title: 'event 3', start: '2021-12-17', end: '2021-12-20', color: 'green' },
-    ];
     const [reservation, setReservation] = useState([]);
 
     // 업체 상세 조회 API 요청
@@ -123,10 +105,22 @@ const Enterprise = ({ match }) => {
                     url: EndPoint.GET_ENTERPRISE,
                     path: { enterpriseId: enterpriseId },
                 });
-
+                const { data: res2 } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_STATUS,
+                });
                 if (!res?.isSuccess || isEmpty(res?.result)) {
                     alert(res.message);
                     history.push('/enterprises');
+                    return;
+                }
+                if (
+                    !res2?.isSuccess ||
+                    isEmpty(res2?.result) ||
+                    (res2.result.enterpriseId != enterpriseId && res2.result.status == 1)
+                ) {
+                    alert('해당 업체 관계자만 조회할 수 있습니다.');
+                    history.push('/users');
                     return;
                 }
 

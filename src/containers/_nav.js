@@ -10,6 +10,11 @@ export default [
                 name: '회원 조회',
                 to: '/users',
             },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '관계자 조회',
+                to: '/admins',
+            },
         ],
     },
     {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CCard, CCardBody, CCol } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidEmail, isValidPhoneNumber } from '../../utils/common/commonFunction';
@@ -15,6 +15,28 @@ const AddAdmin = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [enterpriseId, setEnterpriseId] = useState(null);
 
+    // 업체 상세 조회 API 요청
+    useEffect(() => {
+        const getEnterprise = async () => {
+            try {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_STATUS,
+                });
+                if (!res?.isSuccess || isEmpty(res?.result) || res.result.status != 0) {
+                    alert('관리자만 관계자를 추가할 수 있습니다.');
+                    history.push('/users');
+                    return;
+                }
+            } catch (error) {
+                console.log(error);
+                alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+                history.push('/users');
+            }
+        };
+
+        getEnterprise().then();
+    }, []);
     // 관리자 추가 API 요청
     async function postAdmin(parameters) {
         try {

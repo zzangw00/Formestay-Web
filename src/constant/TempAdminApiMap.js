@@ -13,6 +13,8 @@ export const EndPoint = {
     GET_AUTO_LOGIN: `${API}/auto-login`,
 
     POST_ADMIN: `${API}`,
+    GET_ADMINS: `${API}/admins`,
+    GET_STATUS: `${API}`,
 
     GET_ENTERPRISES: `${API}/enterprises`,
     GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
@@ -49,6 +51,8 @@ const TempAdminApiMap = {
     get: {
         [EndPoint.GET_USERS]: {},
         [EndPoint.GET_USER]: {},
+        [EndPoint.GET_STATUS]: {},
+        [EndPoint.GET_ADMINS]: {},
         [EndPoint.GET_ENTERPRISES]: {},
         [EndPoint.GET_ENTERPRISE]: {},
         [EndPoint.GET_AUTO_LOGIN]: {},

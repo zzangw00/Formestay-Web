@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CCard, CCardBody, CCol, CRow, CFormGroup } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { isEmpty, isValidPhoneNumber } from '../../utils/common/commonFunction';
@@ -23,6 +23,29 @@ const AddEnterprise = () => {
     const [thumbnailURL, setThumbnailURL] = useState('');
     const [file, setFile] = useState(null);
 
+    // 업체 상세 조회 API 요청
+    useEffect(() => {
+        const getEnterprise = async () => {
+            try {
+                const { data: res } = await TempAdminApi.request({
+                    method: HttpMethod.GET,
+                    url: EndPoint.GET_STATUS,
+                });
+
+                if (!res?.isSuccess || isEmpty(res?.result) || res.result.status != 0) {
+                    alert('관리자만 업체를 추가할 수 있습니다.');
+                    history.push('/users');
+                    return;
+                }
+            } catch (error) {
+                console.log(error);
+                alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+                history.push('/users');
+            }
+        };
+
+        getEnterprise().then();
+    }, []);
     // 사용자 추가 API 요청
     async function postEnterprise(parameters) {
         try {
@@ -259,7 +282,7 @@ const AddEnterprise = () => {
                         </div>
                     </CCardBody>
                 </CCard>
-                <BottomButtons onPostClick={onPostButtonClick} />
+                <BottomButtons onAdminClick={onPostButtonClick} />
             </CCol>
         </CRow>
     );

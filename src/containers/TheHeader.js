@@ -47,7 +47,7 @@ const TheHeader = () => {
     };
 
     return (
-        <CHeader withSubheader style={{ background: env === 'production' ? 'white' : 'white'}}>
+        <CHeader withSubheader style={{ background: env === 'production' ? 'white' : 'white' }}>
             <CToggler inHeader className="ml-md-3 d-lg-none" onClick={toggleSidebarMobile} />
             <CToggler inHeader className="ml-3 d-md-down-none" onClick={toggleSidebar} />
             <CHeaderBrand className="mx-auto d-lg-none" to="/">
@@ -62,7 +62,7 @@ const TheHeader = () => {
 
             <CHeaderNav className="px-3">
                 <CButton color="info" to="/add-admin" className="mr-1">
-                    관리자 추가
+                    관계자 추가
                 </CButton>
 
                 <CButton color="info" onClick={() => setInfo(!info)} className="mr-1">
