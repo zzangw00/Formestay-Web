@@ -58,6 +58,7 @@
     "react-app-polyfill": "^1.0.6",
     "react-bootstrap": "^1.6.1",
     "react-bootstrap-table": "4.3.1",
+    "react-calendar": "^3.5.0",
     "react-css-transition-replace": "^4.0.5",
     "react-dnd": "^14.0.4",
     "react-dnd-html5-backend": "^14.0.2",

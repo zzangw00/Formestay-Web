@@ -19,6 +19,8 @@ import { tablePagination, tableScopedSlots, tableStatusField } from '../componen
 import { itemsPerPage } from '../../constant/Constants';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 const MyBlock = styled.div`
     .wrapper-class {
         width: 100%;
@@ -88,6 +90,7 @@ const Program = ({ match }) => {
     const [programImages, setProgramImages] = useState([]);
     const [uploadProgramImages, setUploadProgramImages] = useState([]);
     const [imageData, setImageData] = useState([]);
+    const [value, onChange] = useState(new Date());
 
     function openModal() {
         setIsOpen(true);
@@ -726,10 +729,6 @@ const Program = ({ match }) => {
         return result;
     };
 
-    const changeDiet = useCallback(async () => {
-      console.log('hi')
-    }, [])
-
     return (
         <CCol>
             <CCard>
@@ -946,6 +945,10 @@ const Program = ({ match }) => {
                                 onChange={isEditing ? (e) => setCheckOut(e.target.value) : null}
                             />
                         )}
+                        <div>
+                            <Calendar onChange={onChange} value={value} />
+                        </div>
+
                         {isEditing ? (
                             <CFormGroup row>
                                 <CCol md="2" align="right">
@@ -1007,7 +1010,6 @@ const Program = ({ match }) => {
                                     <label name="tag">식단 정보</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
-                                  <input type="date" onChange={changeDiet}/>
                                     <MyBlock>
                                         <Editor
                                             // 에디터와 툴바 모두에 적용되는 클래스
