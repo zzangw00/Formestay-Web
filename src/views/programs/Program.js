@@ -83,6 +83,8 @@ const Program = ({ match }) => {
     const [modalOneIsOpen, setModalOneIsOpen] = useState(false);
     const [modalTwoIsOpen, setModalTwoIsOpen] = useState(false);
     const [modalThreeIsOpen, setModalThreeIsOpen] = useState(false);
+    const [modalProgramIsOpen, setModalProgramIsOpen] = useState(false);
+    const [modalMealIsOpen, setModalMealIsOpen] = useState(false);
     const [person, setPerson] = useState(null);
     const [price, setPrice] = useState(null);
     const [programRoomPriceId, setProgramRoomPriceId] = useState(false);
@@ -90,7 +92,18 @@ const Program = ({ match }) => {
     const [programImages, setProgramImages] = useState([]);
     const [uploadProgramImages, setUploadProgramImages] = useState([]);
     const [imageData, setImageData] = useState([]);
-    const [value, onChange] = useState(new Date());
+    const [date, setDate] = useState('');
+    const [programInfoId, setProgramInfoId] = useState(null);
+    const [mealInfoId, setMealInfoId] = useState(null);
+    const [infoState, setInfoState] = useState(null); //추가인지 수정인지 1: 수정 0: 추가
+
+    function getToday() {
+        var date2 = new Date();
+        var year = date2.getFullYear();
+        var month = ('0' + (1 + date2.getMonth())).slice(-2);
+        var day = ('0' + date2.getDate()).slice(-2);
+        return year + '-' + month + '-' + day;
+    }
 
     function openModal() {
         setIsOpen(true);
@@ -109,6 +122,18 @@ const Program = ({ match }) => {
         setModalThreeIsOpen(true);
     }
 
+    function openModalProgram() {
+        setDate(getToday());
+        getProgramInfo(getToday());
+        setModalProgramIsOpen(true);
+    }
+
+    function openModalMeal() {
+        setDate(getToday());
+        getMealInfo(getToday());
+        setModalMealIsOpen(true);
+    }
+
     function closeModal() {
         setIsOpen(false);
         history.go(0);
@@ -124,6 +149,132 @@ const Program = ({ match }) => {
 
     function closeModalThree() {
         setModalThreeIsOpen(false);
+    }
+    function closeModalProgram() {
+        setModalProgramIsOpen(false);
+        history.go(0);
+    }
+
+    function closeModalMeal() {
+        setModalMealIsOpen(false);
+        history.go(0);
+    }
+    // 프로그램 정보 조회 API 요청
+    async function getProgramInfo(date2) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.GET,
+                url: EndPoint.GET_PROGRAMINFO,
+                path: { programId: programId },
+                query: { date: date2 },
+            });
+            if (!res?.isSuccess) {
+                if (res?.code === 2002) {
+                    history.go(0);
+                } else {
+                    alert(res.message);
+                }
+                return;
+            }
+            const program = res.result;
+            if (!program) {
+                setInfoState(0);
+            } else {
+                setProgramInfoId(program.programInfoId);
+                setInfoState(1);
+            }
+            if (!program) {
+                const blocksFromHtml = htmlToDraft('');
+                if (blocksFromHtml) {
+                    const { contentBlocks, entityMap } = blocksFromHtml;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setProgramInfo(editorState);
+                }
+            } else {
+                const blocksFromHtml = htmlToDraft(program.content);
+                if (blocksFromHtml) {
+                    const { contentBlocks, entityMap } = blocksFromHtml;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setProgramInfo(editorState);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 식단 정보 조회 API 요청
+    async function getMealInfo(date2) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.GET,
+                url: EndPoint.GET_MEALINFO,
+                path: { programId: programId },
+                query: { date: date2 },
+            });
+            if (!res?.isSuccess) {
+                if (res?.code === 2002) {
+                    history.go(0);
+                } else {
+                    alert(res.message);
+                }
+                return;
+            }
+            const meal = res.result;
+            if (!meal) {
+                setInfoState(0);
+            } else {
+                setMealInfoId(meal.mealInfoId);
+                setInfoState(1);
+            }
+            if (!meal) {
+                const blocksFromHtml = htmlToDraft('');
+                if (blocksFromHtml) {
+                    const { contentBlocks, entityMap } = blocksFromHtml;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setMealInfo(editorState);
+                }
+            } else {
+                const blocksFromHtml = htmlToDraft(meal.content);
+                if (blocksFromHtml) {
+                    const { contentBlocks, entityMap } = blocksFromHtml;
+                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
+                    const contentState = ContentState.createFromBlockArray(
+                        contentBlocks,
+                        entityMap,
+                    );
+                    // ContentState를 EditorState기반으로 새 개체를 반환.
+                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
+                    const editorState = EditorState.createWithContent(contentState);
+                    setMealInfo(editorState);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
     }
 
     // 프로그램 상세 조회 API 요청
@@ -185,33 +336,6 @@ const Program = ({ match }) => {
                     setThumbnailURL('');
                 } else {
                     setThumbnailURL(program1.programResult[0].thumbnailURL);
-                }
-                const blocksFromHtml = htmlToDraft(program1.programResult[0].programInfo);
-                if (blocksFromHtml) {
-                    const { contentBlocks, entityMap } = blocksFromHtml;
-                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
-                    const contentState = ContentState.createFromBlockArray(
-                        contentBlocks,
-                        entityMap,
-                    );
-                    // ContentState를 EditorState기반으로 새 개체를 반환.
-                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
-                    const editorState = EditorState.createWithContent(contentState);
-                    setProgramInfo(editorState);
-                }
-
-                const blocksFromHtmlMeal = htmlToDraft(program1.programResult[0].mealInfo);
-                if (blocksFromHtmlMeal) {
-                    const { contentBlocks, entityMap } = blocksFromHtmlMeal;
-                    // https://draftjs.org/docs/api-reference-content-state/#createfromblockarray
-                    const contentState = ContentState.createFromBlockArray(
-                        contentBlocks,
-                        entityMap,
-                    );
-                    // ContentState를 EditorState기반으로 새 개체를 반환.
-                    // https://draftjs.org/docs/api-reference-editor-state/#createwithcontent
-                    const editorState = EditorState.createWithContent(contentState);
-                    setMealInfo(editorState);
                 }
             } catch (error) {
                 console.log(error);
@@ -468,6 +592,86 @@ const Program = ({ match }) => {
         }
     }
 
+    // 프로그램 정보 수정 API 요청
+    async function patchProgramInfo(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_PROGRAMINFO,
+                path: { programInfoId: programInfoId },
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('프로그램 정보 수정에 성공하였습니다.');
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 프로그램 정보 추가 API 요청
+    async function postProgramInfo(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.POST,
+                url: EndPoint.POST_PROGRAMINFO,
+                path: { programId: programId },
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('프로그램 정보 수정에 성공하였습니다.');
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 식단 정보 수정 API 요청
+    async function patchMealInfo(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.PATCH,
+                url: EndPoint.PATCH_MEALINFO,
+                path: { mealInfoId: mealInfoId },
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('식단 정보 수정에 성공하였습니다.');
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
+    // 식단 정보 추가 API 요청
+    async function postMealInfo(parameters) {
+        try {
+            const { data: res } = await TempAdminApi.request({
+                method: HttpMethod.POST,
+                url: EndPoint.POST_MEALINFO,
+                path: { programId: programId },
+                data: parameters,
+            });
+            if (!res?.isSuccess) {
+                alert(res.message);
+                return;
+            }
+            alert('식단 정보 수정에 성공하였습니다.');
+        } catch (error) {
+            console.log(error);
+            alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+        }
+    }
+
     // 가격정보 수정 버튼 onClick
     function onPatchRoomButtonClick() {
         if (!isEditingP) {
@@ -604,6 +808,94 @@ const Program = ({ match }) => {
     }
     function onClickImage(e) {
         onDeleteImageButtonClick(e.target.alt);
+    }
+
+    function programDateChange(e) {
+        setDate(e.target.value);
+        getProgramInfo(e.target.value);
+    }
+
+    function mealDateChange(e) {
+        setDate(e.target.value);
+        getMealInfo(e.target.value);
+    }
+
+    function programCheckState() {
+        if (infoState == 1) {
+            onProgramInfoPatchButtonClick();
+        } else {
+            onProgramInfoPostButtonClick();
+        }
+    }
+
+    function mealCheckState() {
+        if (infoState == 1) {
+            onMealInfoPatchButtonClick();
+        } else {
+            onMealInfoPostButtonClick();
+        }
+    }
+
+    // 프로그램 정보 수정 버튼
+    function onProgramInfoPatchButtonClick() {
+        const programInfoToHtml = draftToHtml(convertToRaw(programInfo.getCurrentContent()));
+        if (isEmpty(programInfoToHtml)) {
+            alert('프로그램 정보를 입력해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                content: programInfoToHtml,
+            };
+            patchProgramInfo(parameters).then();
+        }
+    }
+    // 프로그램 정보 추가 버튼
+    function onProgramInfoPostButtonClick() {
+        const programInfoToHtml = draftToHtml(convertToRaw(programInfo.getCurrentContent()));
+        if (isEmpty(programInfoToHtml)) {
+            alert('프로그램 정보를 입력해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                programId: programId,
+                content: programInfoToHtml,
+                date: date,
+            };
+            postProgramInfo(parameters).then();
+        }
+    }
+
+    // 식단 정보 수정 버튼
+    function onMealInfoPatchButtonClick() {
+        const mealInfoToHtml = draftToHtml(convertToRaw(mealInfo.getCurrentContent()));
+        if (isEmpty(mealInfoToHtml)) {
+            alert('프로그램 정보를 입력해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                content: mealInfoToHtml,
+            };
+            patchMealInfo(parameters).then();
+        }
+    }
+    // 식단 정보 추가 버튼
+    function onMealInfoPostButtonClick() {
+        const mealInfoToHtml = draftToHtml(convertToRaw(mealInfo.getCurrentContent()));
+        if (isEmpty(mealInfoToHtml)) {
+            alert('프로그램 정보를 입력해주세요.');
+            return;
+        }
+        if (window.confirm('수정하시겠습니까?')) {
+            const parameters = {
+                programId: programId,
+                content: mealInfoToHtml,
+                date: date,
+            };
+            postMealInfo(parameters).then();
+        }
     }
 
     // 프로그램 수정 버튼 onClick
@@ -945,43 +1237,61 @@ const Program = ({ match }) => {
                                 onChange={isEditing ? (e) => setCheckOut(e.target.value) : null}
                             />
                         )}
-                        <div>
-                            <Calendar onChange={onChange} value={value} />
-                        </div>
-
                         {isEditing ? (
                             <CFormGroup row>
                                 <CCol md="2" align="right">
                                     <label name="tag">프로그램 정보</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <Editor
-                                            // 에디터와 툴바 모두에 적용되는 클래스
-                                            wrapperClassName="wrapper-class"
-                                            // 에디터 주변에 적용된 클래스
-                                            editorClassName="editor"
-                                            // 툴바 주위에 적용된 클래스
-                                            toolbarClassName="toolbar-class"
-                                            // 툴바 설정
-                                            toolbar={{
-                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
-                                                list: { inDropdown: true },
-                                                textAlign: { inDropdown: true },
-                                                link: { inDropdown: true },
-                                                history: { inDropdown: false },
-                                            }}
-                                            placeholder="내용을 작성해주세요."
-                                            // 한국어 설정
-                                            localization={{
-                                                locale: 'ko',
-                                            }}
-                                            // 초기값 설정
-                                            editorState={programInfo}
-                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
-                                            onEditorStateChange={onProgramInfoChange}
+                                    <button onClick={openModalProgram}>수정</button>
+                                    <Modal
+                                        isOpen={modalProgramIsOpen}
+                                        onRequestClose={closeModalProgram}
+                                        // classNames={{
+                                        //     overlay: 'customOverlay',
+                                        //     modal: 'customModal',
+                                        // }}
+                                        style={customStyles}
+                                    >
+                                        <input
+                                            type="date"
+                                            id="dateInput"
+                                            name="trip-start"
+                                            value={date}
+                                            onChange={(e) => programDateChange(e)}
                                         />
-                                    </MyBlock>
+                                        <MyBlock>
+                                            <Editor
+                                                // 에디터와 툴바 모두에 적용되는 클래스
+                                                wrapperClassName="wrapper-class"
+                                                // 에디터 주변에 적용된 클래스
+                                                editorClassName="editor"
+                                                // 툴바 주위에 적용된 클래스
+                                                toolbarClassName="toolbar-class"
+                                                // 툴바 설정
+                                                toolbar={{
+                                                    // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
+                                                    list: { inDropdown: true },
+                                                    textAlign: { inDropdown: true },
+                                                    link: { inDropdown: true },
+                                                    history: { inDropdown: false },
+                                                }}
+                                                placeholder="내용을 작성해주세요."
+                                                // 한국어 설정
+                                                localization={{
+                                                    locale: 'ko',
+                                                }}
+                                                // 초기값 설정
+                                                editorState={programInfo}
+                                                // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
+                                                onEditorStateChange={onProgramInfoChange}
+                                            />
+                                        </MyBlock>
+                                        <BottomButtons
+                                            onCloseClick={closeModalProgram}
+                                            onRoomPostClick={programCheckState}
+                                        />
+                                    </Modal>
                                 </div>
                             </CFormGroup>
                         ) : (
@@ -989,20 +1299,6 @@ const Program = ({ match }) => {
                                 label="프로그램 정보"
                                 placeholder="수정하기 버튼을 누른 후 내용을 확인 해주세요"
                             />
-                            // <CFormGroup row>
-                            //     <CCol md="2" align="right">
-                            //         <label name="tag">프로그램 정보</label>
-                            //     </CCol>
-                            //     <div className="app" style={{ marginLeft: '15px' }}>
-                            //         <MyBlock>
-                            //             <IntroduceContent
-                            //                 dangerouslySetInnerHTML={{
-                            //                     __html: editorToHtml(programInfo),
-                            //                 }}
-                            //             />
-                            //         </MyBlock>
-                            //     </div>
-                            // </CFormGroup>
                         )}
                         {isEditing ? (
                             <CFormGroup row>
@@ -1010,33 +1306,55 @@ const Program = ({ match }) => {
                                     <label name="tag">식단 정보</label>
                                 </CCol>
                                 <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <Editor
-                                            // 에디터와 툴바 모두에 적용되는 클래스
-                                            wrapperClassName="wrapper-class"
-                                            // 에디터 주변에 적용된 클래스
-                                            editorClassName="editor"
-                                            // 툴바 주위에 적용된 클래스
-                                            toolbarClassName="toolbar-class"
-                                            // 툴바 설정
-                                            toolbar={{
-                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
-                                                list: { inDropdown: true },
-                                                textAlign: { inDropdown: true },
-                                                link: { inDropdown: true },
-                                                history: { inDropdown: false },
-                                            }}
-                                            placeholder="내용을 작성해주세요."
-                                            // 한국어 설정
-                                            localization={{
-                                                locale: 'ko',
-                                            }}
-                                            // 초기값 설정
-                                            editorState={mealInfo}
-                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
-                                            onEditorStateChange={onMealInfoChange}
+                                    <button onClick={openModalMeal}>수정</button>
+                                    <Modal
+                                        isOpen={modalMealIsOpen}
+                                        onRequestClose={closeModalMeal}
+                                        // classNames={{
+                                        //     overlay: 'customOverlay',
+                                        //     modal: 'customModal',
+                                        // }}
+                                        style={customStyles}
+                                    >
+                                        <input
+                                            type="date"
+                                            id="dateInput"
+                                            name="trip-start"
+                                            value={date}
+                                            onChange={(e) => mealDateChange(e)}
                                         />
-                                    </MyBlock>
+                                        <MyBlock>
+                                            <Editor
+                                                // 에디터와 툴바 모두에 적용되는 클래스
+                                                wrapperClassName="wrapper-class"
+                                                // 에디터 주변에 적용된 클래스
+                                                editorClassName="editor"
+                                                // 툴바 주위에 적용된 클래스
+                                                toolbarClassName="toolbar-class"
+                                                // 툴바 설정
+                                                toolbar={{
+                                                    // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
+                                                    list: { inDropdown: true },
+                                                    textAlign: { inDropdown: true },
+                                                    link: { inDropdown: true },
+                                                    history: { inDropdown: false },
+                                                }}
+                                                placeholder="내용을 작성해주세요."
+                                                // 한국어 설정
+                                                localization={{
+                                                    locale: 'ko',
+                                                }}
+                                                // 초기값 설정
+                                                editorState={mealInfo}
+                                                // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
+                                                onEditorStateChange={onMealInfoChange}
+                                            />
+                                        </MyBlock>
+                                        <BottomButtons
+                                            onCloseClick={closeModalMeal}
+                                            onRoomPostClick={mealCheckState}
+                                        />
+                                    </Modal>
                                 </div>
                             </CFormGroup>
                         ) : (
@@ -1044,20 +1362,6 @@ const Program = ({ match }) => {
                                 label="식단 정보"
                                 placeholder="수정하기 버튼을 누른 후 내용을 확인 해주세요"
                             />
-                            // <CFormGroup row>
-                            //     <CCol md="2" align="right">
-                            //         <label name="tag">식단 정보</label>
-                            //     </CCol>
-                            //     <div className="app" style={{ marginLeft: '15px' }}>
-                            //         <MyBlock>
-                            //             <IntroduceContent
-                            //                 dangerouslySetInnerHTML={{
-                            //                     __html: editorToHtml(mealInfo),
-                            //                 }}
-                            //             />
-                            //         </MyBlock>
-                            //     </div>
-                            // </CFormGroup>
                         )}
                         <TextCell label="등록일" value={createdAt} />
                         {isEditing ? (
