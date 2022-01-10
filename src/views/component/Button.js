@@ -139,10 +139,6 @@ const BottomButtons = (props) => {
                 <p />
             )}
             <CCol align="right">
-                {onRoomPostClick && (
-                    <RoomPostButton label={RoomPostLabel} onClick={onRoomPostClick} />
-                )}
-                &nbsp;&nbsp;
                 {onRegistClick && <RegistButton label={registLabel} onClick={onRegistClick} />}
                 &nbsp;&nbsp;
                 {onCancleClick && <CancleButton label={cancleLabel} onClick={onCancleClick} />}
@@ -153,6 +149,9 @@ const BottomButtons = (props) => {
                 &nbsp;&nbsp;
                 {onPatchClick && <PatchButton label={patchLabel} onClick={onPatchClick} />}
                 &nbsp;&nbsp;
+                {onRoomPostClick && (
+                    <RoomPostButton label={RoomPostLabel} onClick={onRoomPostClick} />
+                )}
                 {onDeleteClick && <DeleteButton label={deleteLabel} onClick={onDeleteClick} />}
             </CCol>
             <br />

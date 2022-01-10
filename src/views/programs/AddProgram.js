@@ -281,7 +281,7 @@ const AddProgram = ({ match }) => {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
-                            <div style={{ float: 'right', marginTop: '3px', marginRight: '10px' }}>
+                            <div style={{ float: 'right', marginTop: '3px', marginRight: '20px' }}>
                                 <button onClick={openModal}>추가</button>
                                 <Modal
                                     isOpen={modalIsOpen}
@@ -317,13 +317,11 @@ const AddProgram = ({ match }) => {
                                     <CLabel htmlFor="text-input">가격 정보</CLabel>
                                 </CCol>
                                 <CCol>
-                                    <div className="app" style={{ marginLeft: '6px' }}>
-                                        <CInput
-                                            placeholder="가격 정보를 입력 해주세요"
-                                            value={showRoomPrice}
-                                            disabled
-                                        />
-                                    </div>
+                                    <CInput
+                                        placeholder="가격 정보를 입력 해주세요"
+                                        value={showRoomPrice}
+                                        disabled
+                                    />
                                 </CCol>
                             </CFormGroup>
                             <CFormGroup row>
@@ -366,74 +364,14 @@ const AddProgram = ({ match }) => {
                                     />
                                 </div>
                             </CFormGroup>
-                            <CFormGroup row>
-                                <CCol md="2" align="right">
-                                    <label name="tag">프로그램 정보</label>
-                                </CCol>
-                                <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <Editor
-                                            // 에디터와 툴바 모두에 적용되는 클래스
-                                            wrapperClassName="wrapper-class"
-                                            // 에디터 주변에 적용된 클래스
-                                            editorClassName="editor"
-                                            // 툴바 주위에 적용된 클래스
-                                            toolbarClassName="toolbar-class"
-                                            // 툴바 설정
-                                            toolbar={{
-                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
-                                                list: { inDropdown: true },
-                                                textAlign: { inDropdown: true },
-                                                link: { inDropdown: true },
-                                                history: { inDropdown: false },
-                                            }}
-                                            placeholder="내용을 작성해주세요."
-                                            // 한국어 설정
-                                            localization={{
-                                                locale: 'ko',
-                                            }}
-                                            // 초기값 설정
-                                            editorState={programInfo}
-                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
-                                            onEditorStateChange={onProgramInfoChange}
-                                        />
-                                    </MyBlock>
-                                </div>
-                            </CFormGroup>
-                            <CFormGroup row>
-                                <CCol md="2" align="right">
-                                    <label name="tag">식단 정보</label>
-                                </CCol>
-                                <div className="app" style={{ marginLeft: '15px' }}>
-                                    <MyBlock>
-                                        <Editor
-                                            // 에디터와 툴바 모두에 적용되는 클래스
-                                            wrapperClassName="wrapper-class"
-                                            // 에디터 주변에 적용된 클래스
-                                            editorClassName="editor"
-                                            // 툴바 주위에 적용된 클래스
-                                            toolbarClassName="toolbar-class"
-                                            // 툴바 설정
-                                            toolbar={{
-                                                // inDropdown: 해당 항목과 관련된 항목을 드롭다운으로 나타낼것인지
-                                                list: { inDropdown: true },
-                                                textAlign: { inDropdown: true },
-                                                link: { inDropdown: true },
-                                                history: { inDropdown: false },
-                                            }}
-                                            placeholder="내용을 작성해주세요."
-                                            // 한국어 설정
-                                            localization={{
-                                                locale: 'ko',
-                                            }}
-                                            // 초기값 설정
-                                            editorState={mealInfo}
-                                            // 에디터의 값이 변경될 때마다 onEditorStateChange 호출
-                                            onEditorStateChange={onMealInfoChange}
-                                        />
-                                    </MyBlock>
-                                </div>
-                            </CFormGroup>
+                            <TextCell
+                                label="프로그램 정보"
+                                value="프로그램 수정하기를 통해 넣어주세요"
+                            />
+                            <TextCell
+                                label="식단 정보"
+                                value="프로그램 수정하기를 통해 넣어주세요"
+                            />
                             <CFormGroup row>
                                 <CCol md="2" align="right">
                                     <label name="thumbnailImg">썸네일 이미지</label>

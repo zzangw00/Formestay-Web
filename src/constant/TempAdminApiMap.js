@@ -53,6 +53,8 @@ export const EndPoint = {
 
     PATCH_MEALINFO: `${API}/mealInfo/:mealInfoId/mealInfo`,
     POST_MEALINFO: `${API}/program/:programId/mealInfo`,
+
+    GET_PAYMENTS: `${API}/payments`,
 };
 
 const TempAdminApiMap = {
@@ -72,6 +74,7 @@ const TempAdminApiMap = {
         [EndPoint.GET_RESERVATION]: {},
         [EndPoint.GET_PROGRAMINFO]: {},
         [EndPoint.GET_MEALINFO]: {},
+        [EndPoint.GET_PAYMENTS]: {},
     },
     post: {
         [EndPoint.POST_ADMIN_LOGIN]: {},

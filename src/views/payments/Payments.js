@@ -5,57 +5,44 @@ import { CCard, CCardBody, CCol, CDataTable } from '@coreui/react';
 import TempAdminApi, { EndPoint, HttpMethod } from '../../constant/TempAdminApi';
 import { itemsPerPage } from '../../constant/Constants';
 import { isEmpty } from '../../utils/common/commonFunction';
-import {
-    tablePagination,
-    tableScopedSlots,
-    tableStatusField,
-    tableSnsIdField,
-} from '../component/Table';
+import { tablePagination, tableScopedSlots } from '../component/Table';
 import BottomButtons from '../component/Button';
 
-const Users = () => {
+const Payments = () => {
     const history = useHistory();
-    const [users, setUsers] = useState([]);
-    const [snsId, setSnsId] = useState(null);
+    const [payments, setPayments] = useState([]);
 
-    // 사용자 전체 조회 API 요청
+    // 관계자 전체 조회 API 요청
     useEffect(() => {
-        const getUsers = async () => {
+        const getPayments = async () => {
             try {
                 const { data: res } = await TempAdminApi.request({
                     method: HttpMethod.GET,
-                    url: EndPoint.GET_USERS,
+                    url: EndPoint.GET_PAYMENTS,
                 });
                 console.log(res);
-                if (!res?.isSuccess || isEmpty(res?.result)) {
+                if (!res?.isSuccess) {
                     if (res?.code === 2002) {
-                        history.push('/login');
+                        history.push('/users');
                     } else {
                         alert(res.message);
                     }
                     return;
                 }
-                const user1 = res.result;
-                const user = user1[0];
-                if (user.snsId == 0) {
-                    setSnsId('일반');
-                } else {
-                    setSnsId('카카오');
-                }
-                setUsers(res.result);
+                setPayments(res.result);
             } catch (error) {
                 console.log(error);
                 alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
             }
         };
 
-        getUsers().then();
+        getPayments().then();
     }, []);
 
     // 테이블 속성 - fields
     const tableFields = [
         {
-            key: 'userId',
+            key: 'paymentHistoryId',
             _classes: 'font-weight-bold',
             label: '고유번호',
             _style: { width: '120px' },
@@ -63,44 +50,54 @@ const Users = () => {
             sorter: true,
         },
         {
-            key: 'nickname',
-            label: '닉네임',
+            key: 'programName',
+            label: '프로그램 명',
             filter: true,
             sorter: true,
         },
         {
-            key: 'email',
-            label: '이메일',
+            key: 'name',
+            label: '예약자 명',
             filter: true,
             sorter: true,
         },
-        tableSnsIdField,
         {
-            key: 'createdAt',
-            label: '가입 날짜',
+            key: 'phoneNumber',
+            label: '연락처',
             filter: true,
             sorter: true,
         },
-        tableStatusField,
+        {
+            key: 'startDate',
+            label: '시작일',
+            filter: true,
+            sorter: true,
+        },
+        {
+            key: 'endDate',
+            label: '종료일',
+            filter: true,
+            sorter: true,
+        },
+        {
+            key: 'price',
+            label: '가격',
+            filter: true,
+            sorter: true,
+        },
     ];
-
-    // 테이블 셀 onClick
-    function onTableRowClick(item) {
-        history.push(`/users/${item.userId}`);
-    }
 
     return (
         <CCol>
             <CCard>
                 <CCardBody align="center">
                     <CDataTable
-                        items={users}
+                        items={payments}
                         fields={tableFields}
                         scopedSlots={tableScopedSlots}
                         hover
                         striped
                         sorter
-                        onRowClick={onTableRowClick}
                         columnFilter
                         pagination={tablePagination}
                         itemsPerPage={itemsPerPage}
@@ -111,4 +108,4 @@ const Users = () => {
     );
 };
 
-export default Users;
+export default Payments;

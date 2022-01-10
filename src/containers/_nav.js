@@ -38,13 +38,13 @@ export default [
     {
         _tag: 'CSidebarNavDropdown',
         name: '결제 관리',
-        route: '/boards',
+        route: '/payments',
         icon: 'cil-notes',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '결제 이력 조회',
-                to: '/boards',
+                to: '/payments',
             },
         ],
     },

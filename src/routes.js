@@ -7,6 +7,8 @@ const AddAdmin = React.lazy(() => import('./views/admin/AddAdmin'));
 
 const Admins = React.lazy(() => import('./views/admin/Admins'));
 
+const Payments = React.lazy(() => import('./views/payments/Payments'));
+
 const Enterprises = React.lazy(() => import('./views/enterprises/Enterprises'));
 const Enterprise = React.lazy(() => import('./views/enterprises/Enterprise'));
 const AddEnterprise = React.lazy(() => import('./views/enterprises/AddEnterprise'));
@@ -23,6 +25,7 @@ const routes = [
     { path: '/add-admin', exact: true, name: '관계자 추가', component: AddAdmin },
 
     { path: '/enterprises', exact: true, name: '업체 조회', component: Enterprises },
+    { path: '/payments', exact: true, name: '결제 이력 조회', component: Payments },
     {
         path: '/enterprises/:enterpriseId',
         exact: true,
