@@ -6,40 +6,13 @@ import { useHistory } from 'react-router-dom';
 import TextCell from '../component/cell/TextCell';
 import BottomButtons from '../component/Button';
 import {handleFirebaseUpload} from "../../utils/firebase/uploadFirebase";
+import {cleanUpSession} from "../../utils/session/sessionManager";
 
 const ChangePassword = () => {
   const history = useHistory();
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
-  // const [nickname, setNickname] = useState('');
-  // const [phoneNumber, setPhoneNumber] = useState('');
-  // const [enterpriseId, setEnterpriseId] = useState(null);
-
   const [password ,setPassword] = useState(null)
   const [newPassword ,setNewPassword] = useState(null)
   const [confirmPassword ,setConfirmPassword] = useState(null)
-  //
-  // async function postAdmin(parameters) {
-  //   try {
-  //     const { data: res } = await TempAdminApi.request({
-  //       method: HttpMethod.POST,
-  //       url: EndPoint.POST_ADMIN,
-  //       data: parameters,
-  //     });
-  //
-  //     if (!res?.isSuccess) {
-  //       alert(res.message);
-  //       return;
-  //     }
-  //
-  //     alert('관계자 추가에 성공하였습니다.');
-  //     history.push('/users');
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
-  //   }
-  // }
 
   const onChangePasswordButton = useCallback(async (e) => {
     console.log(password, newPassword, confirmPassword)
@@ -61,23 +34,29 @@ const ChangePassword = () => {
       return
     }
 
-    // const previewImage = document.getElementById('thumbnailImg');
-    // // const {
-    // //     target: { files, value },
-    // // } = event;
-    // const theFile = event.target.files[0];
-    // let reader = new FileReader();
-    // setFile(event.target.files[0]);
-    // reader.onload = (e) => {
-    //   previewImage.setAttribute('src', e.target.result);
-    // };
-    // reader.readAsDataURL(theFile);
-    // let firebaseURL = await handleFirebaseUpload(
-    //   'program',
-    //   theFile.name,
-    //   event.target.files[0],
-    // );
-    // setThumbnailURL(firebaseURL);
+    try {
+      const { data: res } = await TempAdminApi.request({
+        method: HttpMethod.PATCH,
+        url: EndPoint.PATCH_ADMIN_PASSWORD,
+        data: {
+          password: password,
+          newPassword: newPassword,
+          confirmPassword: confirmPassword
+        },
+      });
+
+      if (!res?.isSuccess) {
+        alert(res.message);
+        return;
+      }
+
+      alert('비밀번호 변경에 성공하였습니다. 다시 로그인 부탁드립니다.');
+      cleanUpSession()
+      history.push('/login');
+    } catch (error) {
+      console.log(error);
+      alert('네트워크 통신 실패. 잠시후 다시 시도해주세요.');
+    }
   }, [password, newPassword, confirmPassword, history]);
 
   return (

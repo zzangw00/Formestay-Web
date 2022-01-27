@@ -15,6 +15,8 @@ export const EndPoint = {
     POST_ADMIN: `${API}`,
     GET_ADMINS: `${API}/admins`,
     GET_STATUS: `${API}`,
+    PATCH_ADMIN_PASSWORD: `${API}/password`,
+
 
     GET_ENTERPRISES: `${API}/enterprises`,
     GET_ENTERPRISE: `${API}/enterprises/:enterpriseId`,
@@ -101,6 +103,9 @@ const TempAdminApiMap = {
         [EndPoint.PATCH_PROGRAMIMAGE_STATUS]: {},
         [EndPoint.PATCH_PROGRAMINFO]: {},
         [EndPoint.PATCH_MEALINFO]: {},
+        [EndPoint.PATCH_ADMIN_PASSWORD]: {},
+
+
     },
     put: {},
     delete: {},
