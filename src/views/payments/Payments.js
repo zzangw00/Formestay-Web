@@ -50,6 +50,12 @@ const Payments = () => {
             sorter: true,
         },
         {
+            key: 'korName',
+            label: '업체 명',
+            filter: true,
+            sorter: true,
+        },
+        {
             key: 'programName',
             label: '프로그램 명',
             filter: true,
@@ -83,6 +89,12 @@ const Payments = () => {
             key: 'price',
             label: '가격',
             filter: true,
+            sorter: true,
+        },
+        {
+            key: 'createdAt',
+            label: '결제일',
+            filter: false,
             sorter: true,
         },
     ];

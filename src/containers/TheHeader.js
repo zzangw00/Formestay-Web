@@ -65,6 +65,10 @@ const TheHeader = () => {
                     관계자 추가
                 </CButton>
 
+                <CButton color="info" to="/change-password" className="mr-1">
+                  비밀번호 변경
+                </CButton>
+
                 <CButton color="info" onClick={() => setInfo(!info)} className="mr-1">
                     로그아웃
                 </CButton>
