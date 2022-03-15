@@ -2,10 +2,6 @@
 
 -   포미스테이 웹 어드민
 
-## 사용언어
-
--   React.js (CoreUI 템플릿)
-
 ## 폴더 구조
 
 ```
@@ -57,9 +53,3 @@
 ├── package-lock.json                                       # package.json의 의존성 관리
 └── README.md
 ```
-
-## 실행 명령어
-
--   `npm install`을 통해 package.json에 명시된 버전으로 node_modules를 설치합니다.
--   `npm run build`를 통해 빌드파일을 생성합니다.
--   `npm start`를 통해 웹어드민 파일을 실행합니다 localhost:3000
